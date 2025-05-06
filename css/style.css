@@ -225,3 +225,47 @@ body {
 .song-actions button:hover {
     color: var(--primary-color);
 }
+
+
+/* Grid Styles for Artists/Albums/Playlists */
+.artist-grid, .album-grid, .playlist-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 20px;
+}
+
+.grid-item {
+    background-color: white;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+
+.grid-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.grid-item img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+}
+
+.grid-item-info {
+    padding: 15px;
+}
+
+.grid-item-title {
+    font-weight: 600;
+    margin-bottom: 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.grid-item-subtitle {
+    font-size: 0.9rem;
+    color: var(--text-light);
+}
