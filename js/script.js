@@ -1,7 +1,6 @@
 import { HomePage } from './home.js';
-
-
-
+import { AudioPlayer } from './player.js';
+import { PlayerUI } from './ui.js';
 
 
 // Shared state in localStorage
@@ -13,7 +12,7 @@ if (!localStorage.getItem('currentTrack')) {
     }));
 }
 
-// Sample playlist data with more details
+// Static songs data
 const tracks = [
     {
         title: "Next to You",
