@@ -2,6 +2,10 @@ import { HomePage } from './home.js';
 import { AudioPlayer } from './player.js';
 import { PlayerUI } from './ui.js';
 
+// Initialize components
+const player = new AudioPlayer();
+const playlist = new Playlist();
+
 
 // Shared state in localStorage
 if (!localStorage.getItem('currentTrack')) {
@@ -103,12 +107,13 @@ const tracks = [
         duration: 243
     }
 ];
-
-
-
-
 tracks.forEach(track => playlist.addTrack(track));
 
+
+
+// Initialize UI components
+const ui = new PlayerUI(player);
+const homePage = new HomePage(player);
 
 function initPlayerState() {
     const savedState = JSON.parse(localStorage.getItem('currentPlayback'));
