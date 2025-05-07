@@ -4,7 +4,7 @@ export class PlayerUI {
         this.playlist = playlist;
         this.isShuffled = false;
         this.isRepeatOn = false;
-        this.originalPlaylistOrder = [...playlist.tracks]; // Store original order
+        this.originalPlaylistOrder = [...playlist.tracks]; 
         this.shuffledOrder = [];
         
         // Main player controls

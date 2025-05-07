@@ -1,10 +1,13 @@
 import { HomePage } from './home.js';
 import { AudioPlayer } from './player.js';
 import { PlayerUI } from './ui.js';
+import { Playlist } from './playlist.js';
+import { PlaylistManagement } from './playlist-management.js';
 
 // Initialize components
 const player = new AudioPlayer();
 const playlist = new Playlist();
+const playlistManagement = new PlaylistManagement(playlist);
 
 
 // Shared state in localStorage
@@ -112,8 +115,8 @@ tracks.forEach(track => playlist.addTrack(track));
 
 
 // Initialize UI components
-const ui = new PlayerUI(player);
-const homePage = new HomePage(player);
+const ui = new PlayerUI(player, playlist);
+const homePage = new HomePage(player, playlist, playlistManagement);
 
 function initPlayerState() {
     const savedState = JSON.parse(localStorage.getItem('currentPlayback'));

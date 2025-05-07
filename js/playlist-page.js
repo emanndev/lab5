@@ -1,12 +1,14 @@
 import { AudioPlayer } from './player.js';
 import { Playlist } from './playlist.js';
 import { PlayerUI } from './ui.js';
+import { PlaylistManagement } from './playlist-management.js';
 
 
 // Initialize components
 const player = new AudioPlayer();
 const mainPlaylist = new Playlist();
 const ui = new PlayerUI(player, mainPlaylist);
+const playlistManagement = new PlaylistManagement(mainPlaylist);
 
 
 
@@ -26,8 +28,6 @@ if (savedState) {
         ui.updatePlayerInfo();
     }
 }
-
-
 renderPlaylists();
 
 // Modal Setup
