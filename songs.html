@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/songs-page.css">
     <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/player-overlay.css">
 </head>
 <body>
   <!--Mobile navigation-->
@@ -91,6 +92,29 @@
             <input type="range" class="volume-slider" min="0" max="1" step="0.01" value="0.7">
         </div>
     </div>
+
+    <!-- Music Player Overlay -->
+<div class="player-overlay hidden">
+    <div class="overlay-content">
+        <div class="album-art-container">
+            <img src="assets/default-cover.jpg" alt="Album Cover" class="overlay-album-art">
+        </div>
+        <div class="overlay-track-info">
+            <h3 class="overlay-track-title">No track selected</h3>
+            <p class="overlay-track-artist">Unknown artist</p>
+        </div>
+        <div class="wave-progress-container">
+            <div class="wave-progress"></div>
+        </div>
+        <div class="overlay-controls">
+            <button class="overlay-control-btn shuffle-btn"><i class="fas fa-random"></i></button>
+            <button class="overlay-control-btn prev-btn"><i class="fas fa-step-backward"></i></button>
+            <button class="overlay-control-btn play-btn"><i class="fas fa-play"></i></button>
+            <button class="overlay-control-btn next-btn"><i class="fas fa-step-forward"></i></button>
+            <button class="overlay-control-btn repeat-btn"><i class="fas fa-redo"></i></button>
+        </div>
+    </div>
+</div>
 
     <script type="module">
         import { setupMobileNavigation } from './js/navigation.js';

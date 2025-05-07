@@ -3,6 +3,7 @@ export class AudioPlayer {
         this.audio = new Audio();
         this.isPlaying = false;
         this.setupTimeUpdateListener();
+        this.setupOverlayPlayer();
     }
 
 
@@ -32,6 +33,68 @@ export class AudioPlayer {
         this.saveState();
     }
 
+     setupOverlayPlayer() {
+        const playerBar = document.querySelector('.player-controls-bar');
+        const overlay = document.querySelector('.player-overlay');
+        const overlayAlbumArt = document.querySelector('.overlay-album-art');
+        const overlayTrackTitle = document.querySelector('.overlay-track-title');
+        const overlayTrackArtist = document.querySelector('.overlay-track-artist');
+        const albumArtContainer = document.querySelector('.album-art-container');
+        
+        // Toggle overlay when player bar is clicked
+        playerBar.addEventListener('click', (e) => {
+            if (e.target.closest('.player-info, .mini-cover')) {
+                overlay.classList.add('active');
+            }
+        });
+        
+        // Close overlay when clicked outside content
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                overlay.classList.remove('active');
+            }
+        });
+        
+        // Update overlay when track changes
+        this.audio.addEventListener('play', () => {
+            const track = this.currentTrack;
+            if (track) {
+                overlayAlbumArt.src = track.cover || 'assets/default-cover.jpg';
+                overlayTrackTitle.textContent = track.title;
+                overlayTrackArtist.textContent = track.artist;
+                
+                if (this.isPlaying) {
+                    albumArtContainer.classList.add('playing');
+                } else {
+                    albumArtContainer.classList.remove('playing');
+                }
+            }
+        });
+        
+        // Sync play/pause with overlay
+        this.audio.addEventListener('play', () => {
+            document.querySelector('.overlay-control-btn.play-btn').innerHTML = '<i class="fas fa-pause"></i>';
+            albumArtContainer.classList.add('playing');
+        });
+        
+        this.audio.addEventListener('pause', () => {
+            document.querySelector('.overlay-control-btn.play-btn').innerHTML = '<i class="fas fa-play"></i>';
+            albumArtContainer.classList.remove('playing');
+        });
+        
+        // Connect overlay controls
+        document.querySelector('.overlay-control-btn.play-btn').addEventListener('click', () => this.togglePlay());
+        document.querySelector('.overlay-control-btn.prev-btn').addEventListener('click', () => this.playPrevious());
+        document.querySelector('.overlay-control-btn.next-btn').addEventListener('click', () => this.playNext());
+        document.querySelector('.overlay-control-btn.shuffle-btn').addEventListener('click', () => this.toggleShuffle());
+        document.querySelector('.overlay-control-btn.repeat-btn').addEventListener('click', () => this.toggleRepeat());
+        
+        // Update wave progress
+        this.audio.addEventListener('timeupdate', () => {
+            const progress = (this.audio.currentTime / this.audio.duration) * 100;
+            document.querySelector('.wave-progress').style.transform = `translateX(-${100 - progress}%) translateY(50%)`;
+        });
+    }
 
     onPlay() {
         this.isPlaying = true;
