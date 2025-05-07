@@ -1,0 +1,315 @@
+
+/* Responsive Styles for Music Player Application */
+
+@media (max-width: 1024px) {
+    .app-container {
+        padding-top: 60px; 
+    }
+
+    .sidebar {
+        position: fixed;
+        top: 0;
+        right: -250px;
+        width: 250px;
+        height: 100vh;
+        transition: right 0.3s ease;
+        z-index: 1000;
+        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .sidebar.active {
+        right: 0;
+    }
+
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+        padding: 15px;
+    }
+
+    .menu-toggle {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        width: 30px;
+        height: 24px;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1100;
+    }
+
+    .menu-toggle span {
+        width: 100%;
+        height: 3px;
+        background: var(--primary-color);
+        transition: all 0.3s ease;
+    }
+
+    .menu-toggle .close-icon {
+        display: none;
+        font-size: 1.5rem;
+        color: var(--primary-color);
+    }
+
+    .menu-toggle .hamburger-icon {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .sidebar.active ~ .menu-toggle .hamburger-icon {
+        display: none;
+    }
+
+    .sidebar.active ~ .menu-toggle .close-icon {
+        display: block;
+    }
+
+    .sidebar-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 900;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease;
+    }
+
+    .sidebar.active + .sidebar-overlay {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .content-tabs {
+        flex-wrap: wrap;
+        gap: 5px;
+        margin-bottom: 15px;
+    }
+
+    .tab-button {
+        padding: 8px 12px;
+        font-size: 0.9rem;
+    }
+
+    .song-list-item {
+        padding: 10px;
+        flex-wrap: wrap;
+    }
+
+    .song-title-artist {
+        flex: 1 0 100%;
+        margin-bottom: 8px;
+    }
+
+    .song-album {
+        flex: 1;
+        padding: 0 5px;
+    }
+
+    .song-actions {
+        flex: 1;
+        justify-content: flex-end;
+    }
+
+    .player-controls-bar {
+        padding: 10px;
+        height: auto;
+        flex-wrap: wrap;
+    }
+
+    .player-info {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .player-center-controls {
+        order: 2;
+        width: 100%;
+        justify-content: center;
+        margin: 10px 0;
+    }
+
+    .player-progress {
+        order: 3;
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .player-volume {
+        order: 1;
+        width: 100%;
+        justify-content: flex-end;
+    }
+}
+
+@media (min-width: 1025px) {
+    .sidebar {
+        transform: none !important;
+        right: auto !important;
+    }
+    
+    .menu-toggle {
+        display: none !important;
+    }
+    
+    .sidebar-overlay {
+        display: none !important;
+    }
+}
+
+@media (max-width: 1024px) {
+    .sidebar:not(.active) {
+        transform: translateX(100%);
+    }
+    
+    .sidebar.active {
+        transform: translateX(0);
+    }
+}
+
+
+/* Mobile-Specific Styles (<= 768px) */
+@media (max-width: 768px) {
+    .search-bar {
+        margin-bottom: 15px;
+    }
+
+    .content-section {
+        margin-top: 15px;
+    }
+
+    .song-list-header {
+        display: none; 
+    }
+
+    .song-list-item {
+        flex-direction: column;
+    }
+
+    .song-number {
+        display: none;
+    }
+
+    .song-title-artist {
+        flex-direction: column;
+    }
+
+    .song-title-artist img {
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+
+    .song-album {
+        flex: 1 0 100%;
+        padding: 5px 0;
+        font-size: 0.9rem;
+    }
+
+    .player-center-controls {
+        gap: 10px;
+    }
+
+    .control-btn {
+        font-size: 1rem;
+    }
+
+    .progress-bar {
+        margin: 0 5px;
+    }
+
+    .current-time, .duration {
+        min-width: 30px;
+    }
+}
+
+/* Tablet-Specific Styles (769px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .sidebar {
+        width: 220px;
+    }
+
+    .content-tabs {
+        margin-bottom: 20px;
+    }
+
+    .song-list-item {
+        padding: 12px 15px;
+    }
+
+    .player-controls-bar {
+        padding: 0 15px;
+    }
+
+    .player-info {
+        width: 200px;
+    }
+
+    .player-center-controls {
+        width: auto;
+    }
+}
+
+
+.menu-toggle {
+    display: none; 
+}
+
+@media (max-width: 1024px) {
+
+    .menu-toggle {
+        display: flex;
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        width: 40px;
+        height: 40px;
+        background: var(--primary-color);
+        border: none;
+        border-radius: 50%;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 1100;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    
+    .menu-toggle .close-icon {
+        display: none;
+        color: white;
+        font-size: 1.5rem;
+    }
+    
+    .menu-toggle .hamburger-icon {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        width: 20px;
+        height: 16px;
+    }
+    
+    .menu-toggle .bar {
+        height: 2px;
+        width: 100%;
+        background: white;
+        transition: all 0.3s ease;
+    }
+    
+    .sidebar.active ~ .menu-toggle .hamburger-icon {
+        display: none;
+    }
+    
+    .sidebar.active ~ .menu-toggle .close-icon {
+        display: block;
+    }
+
+}
+

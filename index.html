@@ -5,9 +5,24 @@
     <title>Sonic Music Player</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    
 </head>
 <body>
+    <!--Mobile navigation-->
+    <button class="menu-toggle" aria-label="Toggle navigation">
+        <span class="hamburger-icon">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </span>
+        <span class="close-icon">
+            <i class="fas fa-times"></i>
+        </span>
+    </button>
     
+    <div class="sidebar-overlay"></div>
+<!--Main Application Structure-->
         <div class="app-container">
             <!-- Sidebar Navigation -->
             <nav class="sidebar">
@@ -15,6 +30,7 @@
                     <i class="fas fa-music"></i>
                     <span>Harmony</span>
                 </div>
+                
                 <ul class="nav-menu">
                     <li class="active"><a href="#"><i class="fas fa-home"></i> Home</a></li>
                     <li><a href="songs.html"><i class="fas fa-music"></i> Your Songs</a></li>
@@ -97,7 +113,13 @@
             </div>
         </div>
     
+       
 
-    <script type="module" src="js/script.js"></script>
+
+        <script type="module">
+            import { setupMobileNavigation } from './js/navigation.js';
+            setupMobileNavigation();
+            import './js/script.js';
+        </script>
 </body>
 </html>

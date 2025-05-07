@@ -277,3 +277,4 @@ function filterSongs(searchTerm) {
         item.style.display = matches ? 'flex' : 'none';
     });
 }
+

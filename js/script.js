@@ -145,3 +145,41 @@ window.addEventListener('beforeunload', () => {
         isPlaying: player.isPlaying
     }));
 });
+
+document.addEventListener('DOMContentLoaded', () => {
+    const sidebar = document.querySelector('.sidebar');
+    const menuToggle = document.querySelector('.menu-toggle');
+    const overlay = document.querySelector('.sidebar-overlay');
+    
+    // Only add event listeners if in mobile/tablet view
+    function setupMobileNav() {
+        if (window.innerWidth <= 1024) {
+            // Toggle sidebar
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+            });
+            
+            // Close sidebar when overlay is clicked
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('active');
+            });
+            
+            // Close sidebar when a nav link is clicked
+            document.querySelectorAll('.nav-menu a').forEach(link => {
+                link.addEventListener('click', () => {
+                    sidebar.classList.remove('active');
+                });
+            });
+        }
+    }
+    
+    // Initialize and handle resize
+    setupMobileNav();
+    window.addEventListener('resize', () => {
+        // Remove active class when resizing to desktop
+        if (window.innerWidth > 1024) {
+            sidebar.classList.remove('active');
+        }
+        setupMobileNav();
+    });
+});
