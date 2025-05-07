@@ -6,8 +6,254 @@ export class HomePage {
         this.playlistManagement = playlistManagement;
         this.currentTab = 'songs';
         this.initialize();
-        this.setupSearch();
     }
+
+    initialize() {
+        this.setupTabSwitching();
+        this.renderSongList();
+        this.setupSongInteractions();
+        this.setupSongClickHandlers();
+        this.setupPlaylistModals();
+        this.setupArtistAndAlbumClickHandlers(); 
+    }
+
+    setupArtistAndAlbumClickHandlers() {
+        // Artist click handler
+        document.querySelector('.artist-grid')?.addEventListener('click', (e) => {
+            const artistItem = e.target.closest('.grid-item');
+            if (artistItem) {
+                const artistName = artistItem.querySelector('.grid-item-title').textContent;
+                this.showArtistModal(artistName);
+            }
+        });
+    
+        // Album click handler
+        document.querySelector('.album-grid')?.addEventListener('click', (e) => {
+            const albumItem = e.target.closest('.grid-item');
+            if (albumItem) {
+                const albumTitle = albumItem.querySelector('.grid-item-title').textContent;
+                const albumArtist = albumItem.querySelector('.grid-item-subtitle').textContent;
+                this.showAlbumModal(albumTitle, albumArtist);
+            }
+        });
+    }
+
+    showArtistModal(artistName) {
+        const modal = document.querySelector('.content-modal');
+        const artistSongs = this.playlist.tracks.filter(track => track.artist === artistName);
+        
+        // Set modal header
+        modal.querySelector('#modal-cover').src = artistSongs[0]?.cover || 'assets/default-artist.jpg';
+        modal.querySelector('#modal-title').textContent = artistName;
+        modal.querySelector('#modal-subtitle').textContent = `${artistSongs.length} ${artistSongs.length === 1 ? 'song' : 'songs'}`;
+        
+        // Render songs list
+        this.renderModalSongsList(artistSongs);
+        
+        // Setup modal actions
+        this.setupModalActions(artistSongs);
+        
+        // Show modal
+        modal.classList.remove('hidden');
+        
+        // Close modal handler
+        this.setupModalCloseHandler();
+    }
+
+    showAlbumModal(albumTitle, albumArtist) {
+        const modal = document.querySelector('.content-modal');
+        const albumSongs = this.playlist.tracks.filter(track => 
+            track.album === albumTitle && track.artist === albumArtist
+        );
+        
+        // Set modal header
+        modal.querySelector('#modal-cover').src = albumSongs[0]?.cover || 'assets/default-cover.jpg';
+        modal.querySelector('#modal-title').textContent = albumTitle;
+        modal.querySelector('#modal-subtitle').textContent = albumArtist;
+        
+        // Render songs list
+        this.renderModalSongsList(albumSongs);
+        
+        // Setup modal actions
+        this.setupModalActions(albumSongs);
+        
+        // Show modal
+        modal.classList.remove('hidden');
+        
+        // Close modal handler
+        this.setupModalCloseHandler();
+    }
+
+    renderModalSongsList(songs) {
+        const songsList = document.querySelector('.modal-songs-list');
+        songsList.innerHTML = '';
+        
+        songs.forEach((song, index) => {
+            const songItem = document.createElement('div');
+            songItem.className = 'modal-song-item';
+            songItem.dataset.index = this.playlist.tracks.findIndex(t => t.url === song.url);
+            
+            songItem.innerHTML = `
+                <div class="song-checkbox">
+                    <input type="checkbox" class="song-select-checkbox" data-song-index="${index}">
+                </div>
+                <div class="song-info">
+                    <div class="song-title">${song.title}</div>
+                    <div class="song-artist">${song.artist}</div>
+                </div>
+                <div class="song-duration">${this.formatTime(song.duration)}</div>
+                <button class="song-play-btn">
+                    <i class="fas fa-play"></i>
+                </button>
+            `;
+            
+            songsList.appendChild(songItem);
+        });
+        
+        // Setup song click handlers
+        this.setupModalSongInteractions();
+    }
+
+    setupModalActions(songs) {
+        const modal = document.querySelector('.content-modal');
+        const selectAllCheckbox = modal.querySelector('#select-all-checkbox');
+        const playAllBtn = modal.querySelector('#play-all-btn');
+        const addAllBtn = modal.querySelector('#add-all-btn');
+        
+        // Select all checkbox
+        selectAllCheckbox.addEventListener('change', (e) => {
+            const checkboxes = modal.querySelectorAll('.song-select-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = e.target.checked;
+            });
+        });
+        
+        // Play all button
+        playAllBtn.addEventListener('click', () => {
+            const firstSongIndex = this.playlist.tracks.findIndex(t => t.url === songs[0].url);
+            this.playlist.currentTrackIndex = firstSongIndex;
+            this.player.play(this.playlist.getCurrentTrack());
+            
+            // Queue the rest of the songs
+            for (let i = 1; i < songs.length; i++) {
+                this.playlist.queue.push(this.playlist.tracks.findIndex(t => t.url === songs[i].url));
+            }
+        });
+        
+        // Add to playlist button
+        addAllBtn.addEventListener('click', () => {
+            const selectedCheckboxes = modal.querySelectorAll('.song-select-checkbox:checked');
+            const songIndices = [];
+            
+            if (selectedCheckboxes.length === 0) {
+                // If none selected, add all
+                songs.forEach(song => {
+                    songIndices.push(this.playlist.tracks.findIndex(t => t.url === song.url));
+                });
+            } else {
+                // Add selected songs
+                selectedCheckboxes.forEach(checkbox => {
+                    const index = parseInt(checkbox.dataset.songIndex);
+                    songIndices.push(this.playlist.tracks.findIndex(t => t.url === songs[index].url));
+                });
+            }
+            
+            this.showAddMultipleToPlaylistModal(songIndices);
+        });
+    }
+
+    setupModalSongInteractions() {
+        const modal = document.querySelector('.content-modal');
+        
+        // Play individual song
+        modal.querySelectorAll('.song-play-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const songItem = e.target.closest('.modal-song-item');
+                const index = parseInt(songItem.dataset.index);
+                this.playTrack(index);
+            });
+        });
+        
+        // Click song row
+        modal.querySelectorAll('.modal-song-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                if (!e.target.classList.contains('song-select-checkbox') && 
+                    !e.target.closest('.song-play-btn')) {
+                    const index = parseInt(item.dataset.index);
+                    this.playTrack(index);
+                }
+            });
+        });
+    }
+
+    setupModalCloseHandler() {
+        const modal = document.querySelector('.content-modal');
+        
+        // Close button
+        modal.querySelector('.close-modal').addEventListener('click', () => {
+            modal.classList.add('hidden');
+        });
+        
+        // Click outside modal
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.add('hidden');
+            }
+        });
+    }
+
+    showAddMultipleToPlaylistModal(songIndices) {
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <h3>Add to Playlist</h3>
+                <div class="playlist-options">
+                    ${this.playlistManagement.userPlaylists.map(playlist => `
+                        <div class="playlist-option" data-playlist-id="${playlist.id}">
+                            <img src="${playlist.image}" alt="${playlist.name}">
+                            <div>
+                                <div class="playlist-name">${playlist.name}</div>
+                                <div class="playlist-count">${playlist.songs.length} songs</div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        // Close modal
+        modal.querySelector('.close-modal').addEventListener('click', () => {
+            modal.remove();
+        });
+        
+        // Add to playlist
+        modal.querySelectorAll('.playlist-option').forEach(option => {
+            option.addEventListener('click', () => {
+                const playlistId = parseInt(option.dataset.playlistId);
+                songIndices.forEach(songIndex => {
+                    this.playlistManagement.addSongToPlaylist(playlistId, songIndex);
+                });
+                modal.remove();
+                document.querySelector('.content-modal').classList.add('hidden');
+                this.showToast(`Added ${songIndices.length} songs to ${this.playlistManagement.userPlaylists.find(p => p.id === playlistId).name}`);
+            });
+        });
+    }  
+
+   setupPlaylistModals() {
+    document.getElementById('create-playlist-btn')?.addEventListener('click', () => {
+        document.querySelector('.playlist-modal').classList.remove('hidden');
+    });
+
+    document.getElementById('confirm-create-playlist')?.addEventListener('click', () => {
+        this.createNewPlaylist();
+    });
+}
 
     setupSearch() {
         const searchInput = document.querySelector('.search-bar input');
@@ -70,11 +316,7 @@ export class HomePage {
         });
     }
 
-    initialize() {
-        this.setupTabSwitching();
-        this.renderSongList();
-        this.setupSongClickHandlers();
-    }
+
 
     setupTabSwitching() {
         const tabButtons = document.querySelectorAll('.tab-button');
@@ -134,8 +376,6 @@ export class HomePage {
             
             songList.appendChild(songItem);
         });
-    
-        this.setupSongInteractions();
     }
     
     setupSongInteractions() {
@@ -317,18 +557,35 @@ export class HomePage {
 
     playTrack(index) {
         this.playlist.currentTrackIndex = index;
-        this.player.play(this.playlist.getCurrentTrack());
-        document.querySelector('.player-controls-bar').classList.remove('hidden');
+        const track = this.playlist.getCurrentTrack();
+        this.player.play(track);
+
+         const playerBar = document.querySelector('.player-controls-bar');
+        if (playerBar) {
+            playerBar.classList.remove('hidden');
+            playerBar.style.display = 'flex';
+        }
         this.updatePlayerInfo();
+        
+        // Then play the track
+        this.player.play(track).then(() => {
+            // Additional actions after play starts if needed
+        });
     }
 
     updatePlayerInfo() {
         const track = this.playlist.getCurrentTrack();
-        const playerBar = document.querySelector('.player-controls-bar');
-        
-        playerBar.querySelector('.mini-cover').src = track.cover || 'assets/default-cover.jpg';
-        playerBar.querySelector('.track-title').textContent = track.title;
-        playerBar.querySelector('.track-artist').textContent = track.artist;
+        if (this.player.updatePlayerUI) {
+            this.player.updatePlayerUI(track); // Use the player's UI update method
+        } else {
+            // Fallback to direct update
+            const playerBar = document.querySelector('.player-controls-bar');
+            if (playerBar && track) {
+                playerBar.querySelector('.mini-cover').src = track.cover || 'assets/default-cover.jpg';
+                playerBar.querySelector('.track-title').textContent = track.title;
+                playerBar.querySelector('.track-artist').textContent = track.artist;
+            }
+        }
     }
 
     formatTime(seconds) {

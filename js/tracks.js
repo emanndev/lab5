@@ -1,0 +1,97 @@
+export const tracks = [
+    {
+        title: "Next to You",
+        artist: "Chris Brown",
+        album: "Unknown",
+        url: "assets/audio/Chris-Brown-Next-to-You-Feat-Justin-Bieber.mp3",
+        cover: "assets/covers/next-to-u.jpeg",
+        duration: 425
+    },
+    {
+        title: "Residual",
+        artist: "Chris Brown",
+        album: "11:11",
+        url: "assets/audio/Chris brown - Residual.mp3",
+        cover: "assets/covers/residuals.jpeg",
+        duration: 336
+    },
+    {
+        title: "A Thousand Years",
+        artist: "Christina Perri",
+        album: "Unknown",
+        url: "assets/audio/Christina_perri_-_-_A_Thousand_Years.mp3",
+        cover: "assets/covers/a thousand years.jpeg",
+        duration: 447
+    },
+    {
+        title: "Back n Forth",
+        artist: "Fireboy DML",
+        album: "Iseoluwa",
+        url: "assets/audio/Fireboy_DML_-_Back_n_Forth_feat_Lagbaja__Vistanaij.com.ng.mp3",
+        cover: "assets/covers/Fireboy-DML-Adedamola-Album-EP.jpg",
+        duration: 332
+    },
+    {
+        title: "Hell and Back",
+        artist: "Fireboy DML",
+        album: "Iseoluwa",
+        url: "assets/audio/Fireboy_DML_-_Hell_And_Back_Vistanaij.com.ng.mp3",
+        cover: "assets/covers/Fireboy-DML-Adedamola-Album-EP.jpg",
+        duration: 241
+    },
+    {
+        title: "Letting Go",
+        artist: "Fireboy DML",
+        album: "Iseoluwa",
+        url: "assets/audio/Fireboy_DML_-_Letting_Go_feat_Lojay__Vistanaij.com.ng.mp3",
+        cover: "assets/covers/Fireboy-DML-Adedamola-Album-EP.jpg",
+        duration: 236
+    },
+    {
+        title: "Luther",
+        artist: "Kendrick Lamar",
+        album: "GNX",
+        url: "assets/audio/Kendrick-Lamar-luther-(HipHopKit.com).mp3",
+        cover: "assets/covers/Kendrick-Lamar-Luther-artwork.jpeg",
+        duration: 257
+    },
+    {
+        title: "Not Like Us",
+        artist: "Kendrick Lamar",
+        album: "GNX",
+        url: "assets/audio/Kendrick-Lamar-Not-Like-Us-drake-Diss-(HipHopKit.com).mp3",
+        cover: "assets/covers/Kendrick-Lamar-Luther-artwork.jpeg",
+        duration: 434
+    },
+    {
+        title: "TV Off",
+        artist: "Kendrick Lamar",
+        album: "GNX",
+        url: "assets/audio/Kendrick-Lamar-tv-off-(HipHopKit.com).mp3",
+        cover: "assets/covers/Kendrick-Lamar-Luther-artwork.jpeg",
+        duration: 340
+    },
+    {
+        title: "Is it a Crime",
+        artist: "Rema",
+        album: "Unknown",
+        url: "assets/audio/Rema-Baby-Is-it-a-Crime-(Vistanaij.com).mp3",
+        cover: "assets/covers/is it a crime.jpeg",
+        duration: 244
+    },
+    {
+        title: "Bout U",
+        artist: "Rema",
+        album: "Unknown",
+        url: "assets/audio/Rema-Bout-U-(Vistanaij.com).mp3",
+        cover: "assets/covers/Rema-Bout-U-Artwork.webp",
+        duration: 243
+    }
+];
+
+export function loadTracks(playlist) {
+    // Load from localStorage if available, otherwise use default tracks
+    const savedTracks = JSON.parse(localStorage.getItem('tracks')) || tracks;
+    savedTracks.forEach(track => playlist.addTrack(track));
+    return playlist;
+}

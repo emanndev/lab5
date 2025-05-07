@@ -118,8 +118,9 @@ tracks.forEach(track => playlist.addTrack(track));
 const ui = new PlayerUI(player, playlist);
 const homePage = new HomePage(player, playlist, playlistManagement);
 
+// Update the initPlayerState function
 function initPlayerState() {
-    const savedState = JSON.parse(localStorage.getItem('currentPlayback'));
+    const savedState = JSON.parse(localStorage.getItem('currentTrack')); // Fix key name
     if (savedState) {
         playlist.currentTrackIndex = savedState.index;
         player.audio.currentTime = savedState.currentTime || 0;
@@ -127,7 +128,11 @@ function initPlayerState() {
         if (savedState.isPlaying) {
             player.play(playlist.getCurrentTrack())
                 .then(() => {
-                    document.querySelector('.player-controls-bar').classList.remove('hidden');
+                    const playerBar = document.querySelector('.player-controls-bar');
+                    if (playerBar) {
+                        playerBar.classList.remove('hidden');
+                        playerBar.style.display = 'flex';
+                    }
                     document.querySelector('.play-btn').innerHTML = '<i class="fas fa-pause"></i>';
                 });
         }

@@ -279,6 +279,9 @@ body {
 }
 
 
+
+
+
 /* Grid Styles for Artists/Albums/Playlists */
 .artist-grid, .album-grid, .playlist-grid {
     display: grid;
@@ -321,6 +324,10 @@ body {
     font-size: 0.9rem;
     color: var(--text-light);
 }
+
+
+
+
 
 /* Player Controls Bar */
 .player-controls-bar {    

@@ -11,24 +11,28 @@ const ui = new PlayerUI(player, mainPlaylist);
 const playlistManagement = new PlaylistManagement(mainPlaylist);
 
 
+// Initialize after DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    // Load tracks
+    const savedTracks = JSON.parse(localStorage.getItem('tracks')) || [];
+    savedTracks.forEach(track => mainPlaylist.addTrack(track));
 
-// Load tracks
-const savedTracks = JSON.parse(localStorage.getItem('tracks')) || [];
-savedTracks.forEach(track => mainPlaylist.addTrack(track));
-
-
-// Restore playback state
-const savedState = JSON.parse(localStorage.getItem('currentTrack'));
-if (savedState) {
-    mainPlaylist.currentTrackIndex = savedState.index;
-    player.audio.currentTime = savedState.currentTime;
-    if (savedState.isPlaying) {
-        player.play(mainPlaylist.getCurrentTrack());
-        document.querySelector('.player-controls-bar').classList.remove('hidden');
-        ui.updatePlayerInfo();
+    // Restore playback state
+    const savedState = JSON.parse(localStorage.getItem('currentTrack'));
+    if (savedState) {
+        mainPlaylist.currentTrackIndex = savedState.index;
+        player.audio.currentTime = savedState.currentTime;
+        if (savedState.isPlaying) {
+            player.play(mainPlaylist.getCurrentTrack());
+            document.querySelector('.player-controls-bar').classList.remove('hidden');
+            ui.updatePlayerInfo();
+        }
     }
-}
-renderPlaylists();
+    
+    // Initialize playlist management
+    playlistManagement.initialize();
+    renderPlaylists();
+});
 
 // Modal Setup
 document.getElementById('create-playlist-btn').addEventListener('click', () => {
@@ -42,42 +46,46 @@ document.querySelector('.close-modal').addEventListener('click', () => {
 });
 
 function renderPlaylists() {
+    // Focus only on playlist display and management
     const playlistGrid = document.querySelector('.playlist-grid');
+    if (!playlistGrid) return;
+
     playlistGrid.innerHTML = '';
 
-    // Add "Create New Playlist" card
-    const newPlaylistCard = document.createElement('div');
-    newPlaylistCard.className = 'grid-item new-playlist';
-    newPlaylistCard.innerHTML = `
-        <div class="new-playlist-icon">
-            <i class="fas fa-plus"></i>
-        </div>
+  // Add "Create New Playlist" card
+  const newPlaylistCard = document.createElement('div');
+  newPlaylistCard.className = 'grid-item new-playlist';
+  newPlaylistCard.innerHTML = `
+      <div class="new-playlist-icon">
+          <i class="fas fa-plus"></i>
+      </div>
+      <div class="grid-item-info">
+          <div class="grid-item-title">New Playlist</div>
+      </div>
+  `;
+  playlistGrid.appendChild(newPlaylistCard);
+
+   // Add user playlists
+   playlistManagement.userPlaylists.forEach(playlist => {
+    const playlistItem = document.createElement('div');
+    playlistItem.className = 'grid-item';
+    playlistItem.dataset.playlistId = playlist.id;
+    
+    playlistItem.innerHTML = `
+        <img src="${playlist.image}" alt="${playlist.name}">
         <div class="grid-item-info">
-            <div class="grid-item-title">New Playlist</div>
+            <div class="grid-item-title">${playlist.name}</div>
+            <div class="grid-item-subtitle">${playlist.songs.length} songs</div>
+        </div>
+        <div class="playlist-actions">
+            <button class="edit-playlist-btn"><i class="fas fa-pen"></i></button>
+            <button class="delete-playlist-btn"><i class="fas fa-trash"></i></button>
         </div>
     `;
-    playlistGrid.appendChild(newPlaylistCard);
+    
+    playlistGrid.appendChild(playlistItem);
+});
 
-    // Add user playlists
-    playlistManagement.userPlaylists.forEach(playlist => {
-        const playlistItem = document.createElement('div');
-        playlistItem.className = 'grid-item';
-        playlistItem.dataset.playlistId = playlist.id;
-        
-        playlistItem.innerHTML = `
-            <img src="${playlist.image}" alt="${playlist.name}">
-            <div class="grid-item-info">
-                <div class="grid-item-title">${playlist.name}</div>
-                <div class="grid-item-subtitle">${playlist.songs.length} songs</div>
-            </div>
-            <div class="playlist-actions">
-                <button class="edit-playlist-btn" title="Edit playlist"><i class="fas fa-pen"></i></button>
-                <button class="delete-playlist-btn" title="Delete playlist"><i class="fas fa-trash"></i></button>
-            </div>
-        `;
-        
-        playlistGrid.appendChild(playlistItem);
-    });
     setupPlaylistInteractions();
 }
 
@@ -135,7 +143,7 @@ function viewPlaylist(playlistId) {
         <div class="modal-content large-modal">
             <span class="close-modal">&times;</span>
             <div class="playlist-header">
-                <img src="${playlist.image}" alt="${playlist.name}" class="playlist-cover">
+                <img src="${playlist.image || 'assets/default-playlist.jpg'}" alt="${playlist.name}" class="playlist-cover">
                 <div class="playlist-info">
                     <h2>${playlist.name}</h2>
                     <p>${playlist.songs.length} ${playlist.songs.length === 1 ? 'song' : 'songs'}</p>
@@ -160,11 +168,10 @@ function viewPlaylist(playlistId) {
                 <div class="song-list">
                     ${playlist.songs.length > 0 ? 
                         playlist.songs.map((songId, index) => {
-                            const track = mainPlaylist.tracks[songId];
+                            const track = mainPlaylist.tracks.find(t => t.id === songId);
                             if (!track) return '';
-                            const isFavorite = favoritesManager.isFavorite(songId);
                             return `
-                                <div class="song-list-item" data-index="${songId}">
+                                <div class="song-list-item" data-index="${index}">
                                     <div class="song-number">${index + 1}</div>
                                     <div class="song-title-artist">
                                         <img src="${track.cover || 'assets/default-cover.jpg'}" alt="${track.title}">
@@ -175,7 +182,6 @@ function viewPlaylist(playlistId) {
                                     </div>
                                     <div class="song-album">${track.album || 'Unknown Album'}</div>
                                     <div class="song-actions">
-                                        <button class="like-btn"><i class="${isFavorite ? 'fas' : 'far'} fa-heart"></i></button>
                                         <button class="remove-from-playlist-btn" title="Remove from playlist">
                                             <i class="fas fa-times"></i>
                                         </button>
@@ -196,28 +202,29 @@ function viewPlaylist(playlistId) {
     document.body.style.overflow = 'hidden'; 
 
     
-    modal.querySelector('.close-modal').addEventListener('click', () => {
-        modal.remove();
-        document.body.style.overflow = '';
-    });
+ // Close modal handler
+ modal.querySelector('.close-modal').addEventListener('click', () => {
+    modal.remove();
+    document.body.style.overflow = '';
+});
 
-    // Play all songs
-    modal.querySelector('.play-all-btn').addEventListener('click', () => {
-        if (playlist.songs.length > 0) {
-            // temporsary playlist for playing
-            const tempPlaylist = new Playlist();
-            playlist.songs.forEach(songId => {
-                const track = mainPlaylist.tracks[songId];
-                if (track) tempPlaylist.addTrack(track);
-            });
-            
-            // Play the first song
-            playlist.currentTrackIndex = 0;
-            player.play(tempPlaylist.getCurrentTrack());
+// Play all songs
+modal.querySelector('.play-all-btn').addEventListener('click', () => {
+    if (playlist.songs.length > 0) {
+        const tracksToPlay = playlist.songs.map(songId => 
+            mainPlaylist.tracks.find(t => t.id === songId)
+        ).filter(Boolean);
+        
+        if (tracksToPlay.length > 0) {
+            player.playlist = new Playlist();
+            tracksToPlay.forEach(track => player.playlist.addTrack(track));
+            player.playlist.currentTrackIndex = 0;
+            player.play(player.playlist.getCurrentTrack());
             document.querySelector('.player-controls-bar').classList.remove('hidden');
             ui.updatePlayerInfo();
         }
-    });
+    }
+});
 
     // Edit playlist
     modal.querySelector('.edit-playlist-btn').addEventListener('click', () => {
@@ -226,24 +233,15 @@ function viewPlaylist(playlistId) {
     });
 
 
+    // Song click handlers
     modal.querySelectorAll('.song-list-item').forEach(item => {
-        // Play song
         item.addEventListener('click', (e) => {
-            if (!e.target.closest('.like-btn') && !e.target.closest('.remove-from-playlist-btn')) {
-                const songId = parseInt(item.dataset.index);
-                
-               
-                const tempPlaylist = new Playlist();
-                playlist.songs.forEach(id => {
-                    const track = mainPlaylist.tracks[id];
-                    if (track) tempPlaylist.addTrack(track);
-                });
-                
-                
-                const playIndex = playlist.songs.indexOf(songId);
-                if (playIndex !== -1) {
-                    tempPlaylist.currentTrackIndex = playIndex;
-                    player.play(tempPlaylist.getCurrentTrack());
+            if (!e.target.closest('.remove-from-playlist-btn')) {
+                const index = parseInt(item.dataset.index);
+                const songId = playlist.songs[index];
+                const track = mainPlaylist.tracks.find(t => t.id === songId);
+                if (track) {
+                    player.play(track);
                     document.querySelector('.player-controls-bar').classList.remove('hidden');
                     ui.updatePlayerInfo();
                 }
@@ -251,15 +249,12 @@ function viewPlaylist(playlistId) {
         });
 
 
-        // Remove from playlist button
-        const removeBtn = item.querySelector('.remove-from-playlist-btn');
-        if (removeBtn) {
-            removeBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const songId = parseInt(item.dataset.index);
-                removeSongFromPlaylist(playlistId, songId, modal);
-            });
-        }
+         // Remove from playlist
+         item.querySelector('.remove-from-playlist-btn')?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const index = parseInt(item.dataset.index);
+            removeSongFromPlaylist(playlistId, playlist.songs[index], modal);
+        });
     });
 }
 

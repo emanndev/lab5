@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/responsive.css">
     <link rel="stylesheet" href="css/player-overlay.css">
+    <link rel="stylesheet" href="css/homepage-modal.css">
     
 </head>
 <body>
@@ -34,7 +35,6 @@
                 
                 <ul class="nav-menu">
                     <li class="active"><a href="#"><i class="fas fa-home"></i> Home</a></li>
-                    <li><a href="songs.html"><i class="fas fa-music"></i> Your Songs</a></li>
                     <li><a href="playlists.html"><i class="fas fa-list"></i> Your Playlists</a></li>
                 </ul>
             </nav>
@@ -133,6 +133,36 @@
             <button class="overlay-control-btn play-btn"><i class="fas fa-play"></i></button>
             <button class="overlay-control-btn next-btn"><i class="fas fa-step-forward"></i></button>
             <button class="overlay-control-btn repeat-btn"><i class="fas fa-redo"></i></button>
+        </div>
+    </div>
+</div>
+
+
+<!-- Artist/Album Modal -->
+<div class="content-modal hidden">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <div class="modal-header">
+            <img id="modal-cover" src="assets/default-cover.jpg" alt="Cover">
+            <div>
+                <h2 id="modal-title">Title</h2>
+                <p id="modal-subtitle">Subtitle</p>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button id="play-all-btn" class="btn-primary">
+                <i class="fas fa-play"></i> Play All
+            </button>
+            <button id="add-all-btn" class="btn-secondary">
+                <i class="fas fa-plus"></i> Add to Playlist
+            </button>
+            <div class="select-all">
+                <input type="checkbox" id="select-all-checkbox">
+                <label for="select-all-checkbox">Select All</label>
+            </div>
+        </div>
+        <div class="modal-songs-list">
+            <!-- Songs will be inserted here -->
         </div>
     </div>
 </div>

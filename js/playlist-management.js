@@ -2,10 +2,10 @@ export class PlaylistManagement {
     constructor(playlist) {
         this.playlist = playlist;
         this.userPlaylists = JSON.parse(localStorage.getItem('userPlaylists')) || [
-            { id: 1, name: 'Favorites', songs: [], image: 'assets/playlist-favorites.jpg' },
-            { id: 2, name: 'Workout Mix', songs: [], image: 'assets/playlist-workout.jpg' }
+            { id: 1, name: 'Favorites', songs: [], image: 'assets/covers/playlist-favorites.jpg' },
+            { id: 2, name: 'Workout Mix', songs: [], image: 'assets/covers/playlist-workout.jpg' }
         ];
-        this.initialize();
+      
     }
 
     initialize() {
@@ -48,6 +48,7 @@ export class PlaylistManagement {
             
             playlistGrid.appendChild(playlistItem);
         });
+        this.setupPlaylistClickHandlers();
     }
 
     setupPlaylistModal() {
@@ -120,6 +121,7 @@ export class PlaylistManagement {
                 this.viewPlaylistDetails(playlistItem.dataset.playlistId);
             }
         });
+        
     }
 
     showPlaylistOptions(playlistId) {

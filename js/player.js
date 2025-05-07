@@ -1,11 +1,22 @@
 export class AudioPlayer {
-    constructor() {
-        this.audio = new Audio();
-        this.isPlaying = false;
-        this.setupTimeUpdateListener();
-        this.setupOverlayPlayer();
-    }
-
+ // Add this to the constructor
+constructor() {
+    this.audio = new Audio();
+    this.isPlaying = false;
+    this.currentTrack = null;
+    
+    // Add this to ensure player bar shows on play
+    this.audio.addEventListener('play', () => {
+        const playerBar = document.querySelector('.player-controls-bar');
+        if (playerBar) {
+            playerBar.classList.remove('hidden');
+            playerBar.style.display = 'flex';
+        }
+    });
+    
+    this.setupTimeUpdateListener();
+    this.setupOverlayPlayer();
+}
 
     setupEventListeners() {
         this.audio.addEventListener('timeupdate', this.updateProgress.bind(this));
@@ -20,20 +31,29 @@ export class AudioPlayer {
             this.saveCurrentTime();
         });
     }
+    
     updateProgress() {
-        const progressPercent = (this.audio.currentTime / this.audio.duration) * 100;
-        const progressBar = document.querySelector('.progress-bar');
-        if (progressBar) progressBar.value = progressPercent;
+        if (!this.audio.duration) return;
         
-        const currentTimeDisplay = document.querySelector('.current-time');
-        if (currentTimeDisplay) {
-            currentTimeDisplay.textContent = this.formatTime(this.audio.currentTime);
+        const progressPercent = (this.audio.currentTime / this.audio.duration) * 100;
+        
+        if (this.progressBar) {
+            this.progressBar.value = progressPercent;
         }
         
-        this.saveState();
+        if (this.currentTimeDisplay) {
+            this.currentTimeDisplay.textContent = this.formatTime(this.audio.currentTime);
+        }
+        
+        this.updateWaveProgress(progressPercent);
     }
-
-     setupOverlayPlayer() {
+    updateWaveProgress(progress) {
+        const waveProgress = document.querySelector('.wave-progress');
+        if (waveProgress) {
+            waveProgress.style.transform = `translateX(-${100 - progress}%) translateY(50%)`;
+        }
+    }
+    setupOverlayPlayer() {
         const playerBar = document.querySelector('.player-controls-bar');
         const overlay = document.querySelector('.player-overlay');
         const overlayAlbumArt = document.querySelector('.overlay-album-art');
@@ -41,9 +61,25 @@ export class AudioPlayer {
         const overlayTrackArtist = document.querySelector('.overlay-track-artist');
         const albumArtContainer = document.querySelector('.album-art-container');
         
+        // Update overlay when track changes
+        const updateOverlayInfo = () => {
+            if (this.currentTrack) {
+                overlayAlbumArt.src = this.currentTrack.cover || 'assets/default-cover.jpg';
+                overlayTrackTitle.textContent = this.currentTrack.title;
+                overlayTrackArtist.textContent = this.currentTrack.artist;
+                
+                if (this.isPlaying) {
+                    albumArtContainer.classList.add('playing');
+                } else {
+                    albumArtContainer.classList.remove('playing');
+                }
+            }
+        };
+    
         // Toggle overlay when player bar is clicked
         playerBar.addEventListener('click', (e) => {
             if (e.target.closest('.player-info, .mini-cover')) {
+                updateOverlayInfo();
                 overlay.classList.add('active');
             }
         });
@@ -56,20 +92,7 @@ export class AudioPlayer {
         });
         
         // Update overlay when track changes
-        this.audio.addEventListener('play', () => {
-            const track = this.currentTrack;
-            if (track) {
-                overlayAlbumArt.src = track.cover || 'assets/default-cover.jpg';
-                overlayTrackTitle.textContent = track.title;
-                overlayTrackArtist.textContent = track.artist;
-                
-                if (this.isPlaying) {
-                    albumArtContainer.classList.add('playing');
-                } else {
-                    albumArtContainer.classList.remove('playing');
-                }
-            }
-        });
+        this.audio.addEventListener('play', updateOverlayInfo);
         
         // Sync play/pause with overlay
         this.audio.addEventListener('play', () => {
@@ -95,7 +118,6 @@ export class AudioPlayer {
             document.querySelector('.wave-progress').style.transform = `translateX(-${100 - progress}%) translateY(50%)`;
         });
     }
-
     onPlay() {
         this.isPlaying = true;
         document.querySelector('.play-btn').innerHTML = '<i class="fas fa-pause"></i>';
@@ -145,17 +167,39 @@ export class AudioPlayer {
         localStorage.setItem('currentTime', this.audio.currentTime);
     }
     play(track) {
+        this.currentTrack = track;
         this.audio.src = track.url;
+        
+        // Update UI elements immediately
+        this.updatePlayerUI(track);
+        
         return this.audio.play()
             .then(() => {
                 this.isPlaying = true;
                 this.saveState();
+                return true;
             })
             .catch(error => {
                 console.error("Playback failed:", error);
                 this.isPlaying = false;
+                return false;
             });
     }
+    
+    // Add this new method to player.js
+    updatePlayerUI(track) {
+        const playerBar = document.querySelector('.player-controls-bar');
+        if (playerBar && track) {
+            const cover = playerBar.querySelector('.mini-cover');
+            const title = playerBar.querySelector('.track-title');
+            const artist = playerBar.querySelector('.track-artist');
+            
+            if (cover) cover.src = track.cover || 'assets/default-cover.jpg';
+            if (title) title.textContent = track.title;
+            if (artist) artist.textContent = track.artist;
+        }
+    }
+
 
     pause() {
         this.audio.pause();
