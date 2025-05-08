@@ -43,7 +43,7 @@
         <main class="main-content">
             <div class="playlists-header">
                 <h1>Your Playlists</h1>
-                <button id="create-playlist-btn" class="btn-primary">
+                <button id="show-create-playlist-modal" class="btn-primary">
                     <i class="fas fa-plus"></i> New Playlist
                 </button>
             </div>
@@ -55,15 +55,18 @@
     </div>
 
     <!-- Playlist Modal -->
-    <div class="modal playlist-modal hidden">
+    <div id="create-playlist-modal" class="modal hidden">
         <div class="modal-content">
             <span class="close-modal">&times;</span>
             <h3>Create New Playlist</h3>
             <div class="form-group">
-                <label for="playlist-name">Playlist Name</label>
-                <input type="text" id="playlist-name" placeholder="My Awesome Playlist">
+                <label for="playlist-name-input">Playlist Name</label>
+                <input type="text" id="playlist-name-input" placeholder="My Awesome Playlist">
             </div>
-            <button id="confirm-create-playlist" class="btn-primary">Create Playlist</button>
+            <div class="modal-actions">
+                <button id="cancel-create-playlist" class="btn">Cancel</button>
+                <button id="confirm-create-playlist" class="btn primary">Create</button>
+            </div>
         </div>
     </div>
 
@@ -95,7 +98,6 @@
         </div>
     </div>
 
-<!-- Enhanced Music Player Overlay -->
 <div class="player-overlay hidden">
     <div class="overlay-content">
         <div class="song-art-container">
@@ -128,11 +130,24 @@
 </div>
 
 
-    <script type="module">
-        import { setupMobileNavigation } from './js/navigation.js';
-        setupMobileNavigation();
-        import './js/songs-page.js';
-        import './js/script.js';
-    </script>
+   <script type="module">
+    import { AudioPlayer } from './js/player.js';
+    import { Playlist } from './js/playlist.js';
+    import { PlaylistManagement } from './js/playlist-management.js';
+    import { tracks } from './js/tracks.js';
+    import { initializePage } from './js/playlist-page.js';
+
+    // // Initialize components
+    // const player = new AudioPlayer();
+    // const mainPlaylist = new Playlist();
+    // const playlistManagement = new PlaylistManagement(mainPlaylist);
+
+    // // Load tracks
+    // tracks.forEach(track => mainPlaylist.addTrack(track));
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initializePage();
+    });
+</script>
 </body>
 </html>

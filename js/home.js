@@ -561,31 +561,123 @@ export class HomePage {
     }
 
     renderPlaylistGrid() {
-        // static data for playlist display
-        const playlists = [
-            { name: 'Favorites', songCount: 12, image: 'assets/playlist-favorites.jpg' },
-            { name: 'Workout Mix', songCount: 8, image: 'assets/playlist-workout.jpg' },
-            { name: 'Chill Vibes', songCount: 15, image: 'assets/playlist-chill.jpg' },
-            { name: 'Road Trip', songCount: 20, image: 'assets/playlist-roadtrip.jpg' }
-        ];
-
         const playlistGrid = document.querySelector('.playlist-grid');
         playlistGrid.innerHTML = '';
         
-        playlists.forEach(playlist => {
+        this.playlistManagement.userPlaylists.forEach(playlist => {
             const playlistItem = document.createElement('div');
             playlistItem.className = 'grid-item';
-            
+            playlistItem.dataset.playlistId = playlist.id;
             playlistItem.innerHTML = `
                 <img src="${playlist.image}" alt="${playlist.name}">
                 <div class="grid-item-info">
                     <div class="grid-item-title">${playlist.name}</div>
-                    <div class="grid-item-subtitle">${playlist.songCount} songs</div>
+                    <div class="grid-item-subtitle">${playlist.songs.length} songs</div>
                 </div>
             `;
             
+            playlistItem.addEventListener('click', () => {
+                this.viewPlaylist(playlist.id);
+            });
+            
             playlistGrid.appendChild(playlistItem);
         });
+    }
+
+    viewPlaylist(playlistId) {
+        const playlist = this.playlistManagement.userPlaylists.find(p => p.id === playlistId);
+        if (!playlist) return;
+    
+        const modal = document.createElement('div');
+        modal.className = 'modal playlist-view-modal';
+        modal.innerHTML = `
+            <div class="modal-content large-modal">
+                <span class="close-modal">&times;</span>
+                <div class="playlist-header">
+                    <img src="${playlist.image}" alt="${playlist.name}" class="playlist-cover">
+                    <div class="playlist-info">
+                        <h2>${playlist.name}</h2>
+                        <p>${playlist.songs.length} songs</p>
+                        <div class="playlist-actions">
+                            <button class="btn play-all-btn">
+                                <i class="fas fa-play"></i> Play All
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="playlist-songs">
+                    ${playlist.songs.length > 0 ? 
+                        playlist.songs.map((songId, index) => {
+                            const track = this.playlist.tracks.find(t => t.id === songId);
+                            if (!track) return '';
+                            return `
+                                <div class="song-item" data-song-id="${songId}">
+                                    <div class="song-number">${index + 1}</div>
+                                    <div class="song-info">
+                                        <img src="${track.cover}" alt="${track.title}">
+                                        <div>
+                                            <div class="song-title">${track.title}</div>
+                                            <div class="song-artist">${track.artist}</div>
+                                        </div>
+                                    </div>
+                                    <div class="song-duration">${this.formatTime(track.duration)}</div>
+                                </div>
+                            `;
+                        }).join('') : 
+                        '<div class="empty-message">This playlist is empty</div>'
+                    }
+                </div>
+            </div>
+        `;
+    
+        document.body.appendChild(modal);
+        document.body.style.overflow = 'hidden';
+    
+        // Event listeners
+        modal.querySelector('.close-modal').addEventListener('click', () => {
+            modal.remove();
+            document.body.style.overflow = '';
+        });
+    
+        modal.querySelector('.play-all-btn').addEventListener('click', () => {
+            this.playPlaylist(playlistId);
+        });
+    
+        modal.querySelectorAll('.song-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const songId = parseInt(item.dataset.songId);
+                this.playSong(songId);
+            });
+        });
+    }
+
+    playPlaylist(playlistId) {
+        const tracks = this.playlistManagement.getPlaylistTracks(playlistId);
+        if (tracks.length > 0) {
+            // Create temporary playlist for playback
+            const tempPlaylist = new Playlist();
+            tracks.forEach(track => tempPlaylist.addTrack(track));
+            
+            // Set as current playlist
+            this.player.playlist = tempPlaylist;
+            this.player.playlist.currentTrackIndex = 0;
+            
+            // Play first track
+            this.player.play(this.player.playlist.getCurrentTrack());
+            
+            // Update UI
+            document.querySelector('.player-controls-bar').classList.remove('hidden');
+            this.updatePlayerInfo();
+        }
+    }
+
+    playSong(songId) {
+        const track = this.playlist.tracks.find(t => t.id === songId);
+        if (track) {
+            this.player.play(track);
+            document.querySelector('.player-controls-bar').classList.remove('hidden');
+            this.updatePlayerInfo();
+        }
     }
 
     setupSongClickHandlers() {

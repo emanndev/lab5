@@ -1,144 +1,88 @@
 export class PlaylistManagement {
     constructor(playlist) {
         this.playlist = playlist;
-        this.userPlaylists = JSON.parse(localStorage.getItem('userPlaylists')) || [
-            { id: 1, name: 'Favorites', songs: [], image: 'assets/covers/playlist-favorites.jpg' },
-            { id: 2, name: 'Workout Mix', songs: [], image: 'assets/covers/playlist-workout.jpg' }
-        ];
-      
+        this.userPlaylists = JSON.parse(localStorage.getItem('userPlaylists')) || [];
+        this.currentPlaylistId = null;
     }
 
-    initialize() {
-        this.renderPlaylists();
-        this.setupPlaylistModal();
-        this.setupPlaylistClickHandlers();
+    // Create new playlist with optional songs
+    createNewPlaylist(name, songs = []) {
+        const newPlaylist = {
+            id: Date.now(),
+            name,
+            songs,
+            image: this.getRandomPlaylistCover()
+        };
+        this.userPlaylists.push(newPlaylist);
+        this.savePlaylists();
+        return newPlaylist;
     }
 
-    renderPlaylists() {
-        const playlistGrid = document.querySelector('.playlist-grid');
-        playlistGrid.innerHTML = '';
-
-        // "Create New Playlist" card
-        const newPlaylistCard = document.createElement('div');
-        newPlaylistCard.className = 'grid-item new-playlist';
-        newPlaylistCard.innerHTML = `
-            <div class="new-playlist-icon">
-                <i class="fas fa-plus"></i>
-            </div>
-            <div class="grid-item-info">
-                <div class="grid-item-title">New Playlist</div>
-            </div>
-        `;
-        playlistGrid.appendChild(newPlaylistCard);
-
-        // user playlists
-        this.userPlaylists.forEach(playlist => {
-            const playlistItem = document.createElement('div');
-            playlistItem.className = 'grid-item';
-            playlistItem.dataset.playlistId = playlist.id;
-            
-            playlistItem.innerHTML = `
-                <img src="${playlist.image}" alt="${playlist.name}">
-                <div class="grid-item-info">
-                    <div class="grid-item-title">${playlist.name}</div>
-                    <div class="grid-item-subtitle">${playlist.songs.length} songs</div>
-                </div>
-                <button class="playlist-edit-btn"><i class="fas fa-ellipsis-h"></i></button>
-            `;
-            
-            playlistGrid.appendChild(playlistItem);
-        });
-        this.setupPlaylistClickHandlers();
-    }
-
-    setupPlaylistModal() {
-        // Create modal HTML
-        const modalHTML = `
-            <div class="modal playlist-modal hidden">
-                <div class="modal-content">
-                    <span class="close-modal">&times;</span>
-                    <h3>Create New Playlist</h3>
-                    <div class="form-group">
-                        <label for="playlist-name">Playlist Name</label>
-                        <input type="text" id="playlist-name" placeholder="My Awesome Playlist">
-                    </div>
-                    <button id="create-playlist-btn" class="btn-primary">Create Playlist</button>
-                </div>
-            </div>
-        `;
-        document.body.insertAdjacentHTML('beforeend', modalHTML);
-
-        // Event listeners for modal
-        document.querySelectorAll('.new-playlist').forEach(el => {
-            el.addEventListener('click', () => {
-                document.querySelector('.playlist-modal').classList.remove('hidden');
-            });
-        });
-
-        document.querySelector('.close-modal').addEventListener('click', () => {
-            document.querySelector('.playlist-modal').classList.add('hidden');
-        });
-
-        document.getElementById('create-playlist-btn').addEventListener('click', () => {
-            this.createNewPlaylist();
-        });
-    }
-
-    createNewPlaylist() {
-        const nameInput = document.getElementById('playlist-name');
-        const name = nameInput.value.trim();
-        
-        if (name) {
-            const newPlaylist = {
-                id: Date.now(), 
-                name,
-                songs: [],
-                image: 'assets/default-playlist.jpg'
-            };
-            
-            this.userPlaylists.push(newPlaylist);
-            this.savePlaylists();
-            this.renderPlaylists();
-            
-            nameInput.value = '';
-            document.querySelector('.playlist-modal').classList.add('hidden');
-        }
-    }
-
-    savePlaylists() {
-        localStorage.setItem('userPlaylists', JSON.stringify(this.userPlaylists));
-    }
-
-    setupPlaylistClickHandlers() {
-        document.querySelector('.playlist-grid').addEventListener('click', (e) => {
-            const playlistItem = e.target.closest('.grid-item');
-            const editBtn = e.target.closest('.playlist-edit-btn');
-            
-            if (editBtn) {
-                e.stopPropagation();
-                this.showPlaylistOptions(playlistItem.dataset.playlistId);
-            } else if (playlistItem && !playlistItem.classList.contains('new-playlist')) {
-                this.viewPlaylistDetails(playlistItem.dataset.playlistId);
-            }
-        });
-        
-    }
-
-    showPlaylistOptions(playlistId) {
-        console.log(`Show options for playlist ${playlistId}`);
-    }
-
-    viewPlaylistDetails(playlistId) {
-        console.log(`View details for playlist ${playlistId}`);
-    }
-
-    addSongToPlaylist(playlistId, songId) {
+    // Add multiple songs to playlist
+    addSongsToPlaylist(playlistId, songIds) {
         const playlist = this.userPlaylists.find(p => p.id === playlistId);
-        if (playlist && !playlist.songs.includes(songId)) {
-            playlist.songs.push(songId);
+        if (playlist) {
+            songIds.forEach(songId => {
+                if (!playlist.songs.includes(songId)) {
+                    playlist.songs.push(songId);
+                }
+            });
             this.savePlaylists();
             return true;
         }
         return false;
+    }
+
+    // Remove songs from playlist
+    removeSongsFromPlaylist(playlistId, songIds) {
+        const playlist = this.userPlaylists.find(p => p.id === playlistId);
+        if (playlist) {
+            playlist.songs = playlist.songs.filter(id => !songIds.includes(id));
+            this.savePlaylists();
+            return true;
+        }
+        return false;
+    }
+
+    // Edit playlist name
+    editPlaylistName(playlistId, newName) {
+        const playlist = this.userPlaylists.find(p => p.id === playlistId);
+        if (playlist) {
+            playlist.name = newName;
+            this.savePlaylists();
+            return true;
+        }
+        return false;
+    }
+
+    // Delete playlist
+    deletePlaylist(playlistId) {
+        this.userPlaylists = this.userPlaylists.filter(p => p.id !== playlistId);
+        this.savePlaylists();
+    }
+
+    // Get all tracks in a playlist
+    getPlaylistTracks(playlistId) {
+        const playlist = this.userPlaylists.find(p => p.id === playlistId);
+        if (!playlist) return [];
+        
+        return playlist.songs
+            .map(songId => this.playlist.tracks.find(t => t.id === songId))
+            .filter(Boolean);
+    }
+
+    // Save to localStorage
+    savePlaylists() {
+        localStorage.setItem('userPlaylists', JSON.stringify(this.userPlaylists));
+    }
+
+    // Helper to get random cover image
+    getRandomPlaylistCover() {
+        const covers = [
+            'assets/covers/playlist1.jpg',
+            'assets/covers/playlist2.jpg',
+            'assets/covers/playlist3.jpg'
+        ];
+        return covers[Math.floor(Math.random() * covers.length)];
     }
 }
