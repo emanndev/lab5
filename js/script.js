@@ -158,7 +158,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const menuToggle = document.querySelector('.menu-toggle');
     const overlay = document.querySelector('.sidebar-overlay');
     
-    // Toggle sidebar
     menuToggle.addEventListener('click', () => {
         sidebar.classList.toggle('active');
     });
@@ -166,8 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
     overlay.addEventListener('click', () => {
         sidebar.classList.remove('active');
     });
-    
-    // Close sidebar when a nav link is clicked for mobile
+
     document.querySelectorAll('.nav-menu a').forEach(link => {
         link.addEventListener('click', () => {
             if (window.innerWidth <= 1024) {
@@ -175,8 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
-    
-    // Close sidebar when window is resized to desktop
+
     window.addEventListener('resize', () => {
         if (window.innerWidth > 1024) {
             sidebar.classList.remove('active');

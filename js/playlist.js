@@ -4,7 +4,7 @@ export class Playlist {
         this.currentTrackIndex = 0;
         this.shuffle = false;
         this.repeat = false;
-        this.originalOrder = []; // For shuffle functionality
+        this.originalOrder = []; 
     }
 
     addTrack(track) {
@@ -27,7 +27,7 @@ export class Playlist {
         } else if (this.currentTrackIndex < this.tracks.length - 1) {
             this.currentTrackIndex++;
         } else {
-            return null; // End of playlist
+            return null; 
         }
 
         return this.getCurrentTrack();
@@ -89,7 +89,7 @@ export class Playlist {
             if (this.shuffle) {
                 this.resetShuffle();
             }
-            return null; // End of playlist
+            return null; 
         }
         
         return this.getCurrentTrack();

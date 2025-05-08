@@ -143,13 +143,11 @@ export class PlayerUI {
         this.shuffleBtn.classList.toggle('active');
         
         if (this.isShuffled) {
-            // Create shuffled order if not already created
             if (this.shuffledOrder.length === 0) {
                 this.createShuffledOrder();
             }
             this.playlist.currentTrackIndex = this.getCurrentShuffledIndex();
         } else {
-            // Restore original order and find current track's position
             const currentTrack = this.playlist.getCurrentTrack();
             this.playlist.currentTrackIndex = this.originalPlaylistOrder.findIndex(
                 track => track.url === currentTrack.url
@@ -175,8 +173,6 @@ export class PlayerUI {
 
     getCurrentShuffledIndex() {
         if (!this.isShuffled) return this.playlist.currentTrackIndex;
-        
-        // current position in the shuffled order
         const currentPosition = this.shuffledOrder.indexOf(this.playlist.currentTrackIndex);
         return currentPosition >= 0 ? currentPosition : 0;
     }
@@ -185,8 +181,6 @@ export class PlayerUI {
     toggleRepeat() {
         this.isRepeatOn = !this.isRepeatOn;
         this.repeatBtn.classList.toggle('active');
-        
-        // Update the player's loop property
         this.player.audio.loop = this.isRepeatOn;
     }
 

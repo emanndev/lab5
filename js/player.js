@@ -115,7 +115,6 @@ export class AudioPlayer {
             }
         };
 
-        // Update control buttons to show active states
         const updateControlStates = () => {
             const shuffleBtn = document.querySelector('.shuffle-btn');
             const repeatBtn = document.querySelector('.repeat-btn');
@@ -127,12 +126,9 @@ export class AudioPlayer {
                 repeatBtn.classList.toggle('active', this.playlist?.repeat || false);
             }
         };
-
-        // Call initially and whenever playlist changes
         updateControlStates();
         this.audio.addEventListener('play', updateControlStates);
 
-        // Toggle overlay when player bar is clicked
         playerBar.addEventListener('click', (e) => {
             if (e.target.closest('.player-info, .mini-cover')) {
                 updateOverlayInfo();
@@ -265,12 +261,11 @@ export class AudioPlayer {
         if (nextTrack) {
             this.play(nextTrack);
         } else {
-            // End of playlist behavior
             this.pause();
             this.audio.currentTime = 0;
             if (this.playlist.repeat) {
-                this.playlist.currentTrackIndex = -1; // Reset for repeat
-                this.playNext(); // Will wrap to first track
+                this.playlist.currentTrackIndex = -1; 
+                this.playNext(); 
             }
         }
     }
@@ -281,7 +276,6 @@ export class AudioPlayer {
             return;
         }
 
-        // Restart current track if >3 seconds played
         if (this.audio.currentTime > 3) {
             this.audio.currentTime = 0;
             if (this.currentTrack) {
@@ -300,8 +294,6 @@ export class AudioPlayer {
         if (!this.playlist) return;
 
         this.playlist.shuffle = !this.playlist.shuffle;
-
-        // Update UI
         const shuffleBtn = document.querySelector('.shuffle-btn');
         if (shuffleBtn) {
             shuffleBtn.classList.toggle('active', this.playlist.shuffle);
@@ -319,8 +311,6 @@ export class AudioPlayer {
         if (!this.playlist) return;
 
         this.playlist.repeat = !this.playlist.repeat;
-
-        // Update UI
         const repeatBtn = document.querySelector('.repeat-btn');
         if (repeatBtn) {
             repeatBtn.classList.toggle('active', this.playlist.repeat);

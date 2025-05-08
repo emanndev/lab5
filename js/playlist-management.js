@@ -5,7 +5,6 @@ export class PlaylistManagement {
         this.currentPlaylistId = null;
     }
 
-    // Create new playlist with optional songs
     createNewPlaylist(name, songs = []) {
         const newPlaylist = {
             id: Date.now(),
@@ -18,7 +17,6 @@ export class PlaylistManagement {
         return newPlaylist;
     }
 
-    // Add multiple songs to playlist
     addSongsToPlaylist(playlistId, songIds) {
         const playlist = this.userPlaylists.find(p => p.id === playlistId);
         if (playlist) {
@@ -33,7 +31,6 @@ export class PlaylistManagement {
         return false;
     }
 
-    // Remove songs from playlist
     removeSongsFromPlaylist(playlistId, songIds) {
         const playlist = this.userPlaylists.find(p => p.id === playlistId);
         if (playlist) {
@@ -44,7 +41,6 @@ export class PlaylistManagement {
         return false;
     }
 
-    // Edit playlist name
     editPlaylistName(playlistId, newName) {
         const playlist = this.userPlaylists.find(p => p.id === playlistId);
         if (playlist) {
@@ -55,13 +51,11 @@ export class PlaylistManagement {
         return false;
     }
 
-    // Delete playlist
     deletePlaylist(playlistId) {
         this.userPlaylists = this.userPlaylists.filter(p => p.id !== playlistId);
         this.savePlaylists();
     }
 
-    // Get all tracks in a playlist
     getPlaylistTracks(playlistId) {
         const playlist = this.userPlaylists.find(p => p.id === playlistId);
         if (!playlist) return [];
@@ -71,12 +65,10 @@ export class PlaylistManagement {
             .filter(Boolean);
     }
 
-    // Save to localStorage
     savePlaylists() {
         localStorage.setItem('userPlaylists', JSON.stringify(this.userPlaylists));
     }
 
-    // Helper to get random cover image
     getRandomPlaylistCover() {
         const covers = [
             'assets/covers/playlist1.jpg',
