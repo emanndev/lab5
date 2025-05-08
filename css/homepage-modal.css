@@ -5,18 +5,34 @@
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.7);
-    display: flex;
+    display: none; /* Start hidden */
     justify-content: center;
     align-items: center;
     z-index: 1000;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
+    /* opacity: 0; */
+    transition: opacity 0.3s ease;
 }
 
 .content-modal.active {
-    opacity: 1;
-    visibility: visible;
+    display: flex;
+    /* opacity: 1; */
+}
+
+/* Prevent background scrolling when modal is open */
+body.modal-open {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+}
+/* Add to your CSS */
+.modal-song-item.playing {
+    background-color: rgba(0, 123, 255, 0.1);
+    border-left: 3px solid #007bff;
+}
+
+.modal-song-item.playing .song-play-btn i {
+    color: #007bff;
 }
 
 .modal-content {
@@ -36,7 +52,28 @@
     right: 15px;
     font-size: 24px;
     cursor: pointer;
+    z-index: 1001;
 }
+/* Make sure nothing else is above the modal */
+.player-overlay {
+    z-index: 1000;
+}
+
+.player-controls-bar {
+    z-index: 999;
+}
+
+/* Add this to your homepage-modal.css */
+.content-modal:not(.active) {
+    display: none;
+    pointer-events: none;
+}
+
+/* Prevent background scrolling when modal is open */
+body.modal-open {
+    overflow: hidden;
+}
+
 
 .modal-header {
     display: flex;

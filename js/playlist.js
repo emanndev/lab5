@@ -5,9 +5,8 @@ export class Playlist {
     }
 
     addTrack(track) {
-         // Ensure each track has an ID
          if (!track.id) {
-            track.id = Date.now(); // Simple unique ID
+            track.id = Date.now(); 
         }
         this.tracks.push(track);
     }

@@ -28,8 +28,6 @@ document.addEventListener('DOMContentLoaded', () => {
             ui.updatePlayerInfo();
         }
     }
-    
-    // Initialize playlist management
     playlistManagement.initialize();
     renderPlaylists();
 });
@@ -52,7 +50,7 @@ function renderPlaylists() {
 
     playlistGrid.innerHTML = '';
 
-  // Add "Create New Playlist" card
+  // Create New Playlist card
   const newPlaylistCard = document.createElement('div');
   newPlaylistCard.className = 'grid-item new-playlist';
   newPlaylistCard.innerHTML = `
@@ -65,7 +63,7 @@ function renderPlaylists() {
   `;
   playlistGrid.appendChild(newPlaylistCard);
 
-   // Add user playlists
+   // user playlists
    playlistManagement.userPlaylists.forEach(playlist => {
     const playlistItem = document.createElement('div');
     playlistItem.className = 'grid-item';

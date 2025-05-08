@@ -18,7 +18,7 @@ export class PlaylistManagement {
         const playlistGrid = document.querySelector('.playlist-grid');
         playlistGrid.innerHTML = '';
 
-        // Add "Create New Playlist" card
+        // "Create New Playlist" card
         const newPlaylistCard = document.createElement('div');
         newPlaylistCard.className = 'grid-item new-playlist';
         newPlaylistCard.innerHTML = `
@@ -31,7 +31,7 @@ export class PlaylistManagement {
         `;
         playlistGrid.appendChild(newPlaylistCard);
 
-        // Add user playlists
+        // user playlists
         this.userPlaylists.forEach(playlist => {
             const playlistItem = document.createElement('div');
             playlistItem.className = 'grid-item';
@@ -90,7 +90,7 @@ export class PlaylistManagement {
         
         if (name) {
             const newPlaylist = {
-                id: Date.now(), // Simple unique ID
+                id: Date.now(), 
                 name,
                 songs: [],
                 image: 'assets/default-playlist.jpg'
@@ -125,15 +125,11 @@ export class PlaylistManagement {
     }
 
     showPlaylistOptions(playlistId) {
-        // Implement context menu for playlist options
         console.log(`Show options for playlist ${playlistId}`);
-        // Would include: Rename, Delete, Add Songs, etc.
     }
 
     viewPlaylistDetails(playlistId) {
-        // Implement view for a specific playlist
         console.log(`View details for playlist ${playlistId}`);
-        // Would show songs in this playlist and allow playing
     }
 
     addSongToPlaylist(playlistId, songId) {

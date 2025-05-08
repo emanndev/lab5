@@ -1,11 +1,14 @@
 export class AudioPlayer {
- // Add this to the constructor
 constructor() {
     this.audio = new Audio();
     this.isPlaying = false;
     this.currentTrack = null;
-    
-    // Add this to ensure player bar shows on play
+   this.updateProgressBar = this.updateProgressBar.bind(this);
+   this.handlePlayError = this.handlePlayError.bind(this);
+
+       // Setup event listeners
+       this.audio.addEventListener('timeupdate', this.updateProgressBar);
+       this.audio.addEventListener('error', this.handlePlayError);
     this.audio.addEventListener('play', () => {
         const playerBar = document.querySelector('.player-controls-bar');
         if (playerBar) {
@@ -16,6 +19,21 @@ constructor() {
     
     this.setupTimeUpdateListener();
     this.setupOverlayPlayer();
+}
+
+
+updateProgressBar() {
+    if (!this.audio.duration) return;
+    
+    const progressPercent = (this.audio.currentTime / this.audio.duration) * 100;
+    const progressBar = document.querySelector('.progress-bar');
+    if (progressBar) {
+        progressBar.value = progressPercent;
+    }
+}
+handlePlayError(error) {
+    console.error('Playback error:', error);
+    this.isPlaying = false;
 }
 
     setupEventListeners() {
@@ -170,7 +188,6 @@ constructor() {
         this.currentTrack = track;
         this.audio.src = track.url;
         
-        // Update UI elements immediately
         this.updatePlayerUI(track);
         
         return this.audio.play()
@@ -185,8 +202,6 @@ constructor() {
                 return false;
             });
     }
-    
-    // Add this new method to player.js
     updatePlayerUI(track) {
         const playerBar = document.querySelector('.player-controls-bar');
         if (playerBar && track) {

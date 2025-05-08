@@ -18,10 +18,14 @@ export class HomePage {
     }
 
     setupArtistAndAlbumClickHandlers() {
+        console.log('Setting up artist and album click handlers');
+
         // Artist click handler
         document.querySelector('.artist-grid')?.addEventListener('click', (e) => {
+            console.log('Artist grid clicked');
             const artistItem = e.target.closest('.grid-item');
             if (artistItem) {
+                console.log('Artist item clicked:', artistItem);
                 const artistName = artistItem.querySelector('.grid-item-title').textContent;
                 this.showArtistModal(artistName);
             }
@@ -29,8 +33,10 @@ export class HomePage {
     
         // Album click handler
         document.querySelector('.album-grid')?.addEventListener('click', (e) => {
+            console.log('Album grid clicked');   
             const albumItem = e.target.closest('.grid-item');
             if (albumItem) {
+                console.log('Album item clicked:', albumItem);
                 const albumTitle = albumItem.querySelector('.grid-item-title').textContent;
                 const albumArtist = albumItem.querySelector('.grid-item-subtitle').textContent;
                 this.showAlbumModal(albumTitle, albumArtist);
@@ -39,29 +45,54 @@ export class HomePage {
     }
 
     showArtistModal(artistName) {
+        console.log('Showing artist modal for:', artistName);
         const modal = document.querySelector('.content-modal');
+        if (!modal) return;
+        console.log('Modal element:', modal);
+
+         // Reset modal state
+    modal.style.display = 'flex';
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+
+         // Prevent double listeners
+    modal.querySelector('.close-modal').replaceWith(modal.querySelector('.close-modal').cloneNode(true));
+    
+ 
+  document.body.classList.add('modal-open');
+
         const artistSongs = this.playlist.tracks.filter(track => track.artist === artistName);
-        
+        console.log('Artist songs:', artistSongs);    
         // Set modal header
         modal.querySelector('#modal-cover').src = artistSongs[0]?.cover || 'assets/default-artist.jpg';
         modal.querySelector('#modal-title').textContent = artistName;
         modal.querySelector('#modal-subtitle').textContent = `${artistSongs.length} ${artistSongs.length === 1 ? 'song' : 'songs'}`;
-        
-        // Render songs list
         this.renderModalSongsList(artistSongs);
-        
-        // Setup modal actions
         this.setupModalActions(artistSongs);
         
         // Show modal
-        modal.classList.remove('hidden');
-        
-        // Close modal handler
+        modal.classList.add('active');
+        modal.style.display = 'flex';  
+    
         this.setupModalCloseHandler();
     }
 
     showAlbumModal(albumTitle, albumArtist) {
+        console.log('Showing album modal for:', albumTitle, 'by', albumArtist);
         const modal = document.querySelector('.content-modal');
+        if (!modal) return;
+        console.log('Modal element:', modal);
+
+    // Reset modal state
+    modal.style.display = 'flex';
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+
+            // Prevent double listeners
+    modal.querySelector('.close-modal').replaceWith(modal.querySelector('.close-modal').cloneNode(true));
+
+    document.body.classList.add('modal-open');
+
         const albumSongs = this.playlist.tracks.filter(track => 
             track.album === albumTitle && track.artist === albumArtist
         );
@@ -70,17 +101,12 @@ export class HomePage {
         modal.querySelector('#modal-cover').src = albumSongs[0]?.cover || 'assets/default-cover.jpg';
         modal.querySelector('#modal-title').textContent = albumTitle;
         modal.querySelector('#modal-subtitle').textContent = albumArtist;
-        
-        // Render songs list
+
         this.renderModalSongsList(albumSongs);
-        
-        // Setup modal actions
         this.setupModalActions(albumSongs);
-        
-        // Show modal
-        modal.classList.remove('hidden');
-        
-        // Close modal handler
+
+        modal.classList.add('active');
+        modal.style.display = 'flex'; 
         this.setupModalCloseHandler();
     }
 
@@ -92,6 +118,9 @@ export class HomePage {
             const songItem = document.createElement('div');
             songItem.className = 'modal-song-item';
             songItem.dataset.index = this.playlist.tracks.findIndex(t => t.url === song.url);
+            if (this.playlist.currentTrackIndex === this.playlist.tracks.findIndex(t => t.url === song.url)) {
+                songItem.classList.add('playing');
+            }
             
             songItem.innerHTML = `
                 <div class="song-checkbox">
@@ -146,7 +175,6 @@ export class HomePage {
             const songIndices = [];
             
             if (selectedCheckboxes.length === 0) {
-                // If none selected, add all
                 songs.forEach(song => {
                     songIndices.push(this.playlist.tracks.findIndex(t => t.url === song.url));
                 });
@@ -186,21 +214,34 @@ export class HomePage {
             });
         });
     }
-
     setupModalCloseHandler() {
         const modal = document.querySelector('.content-modal');
+        if (!modal) return;
+    
+        // Remove existing listeners to prevent duplicates
+        const closeBtn = modal.querySelector('.close-modal');
+        closeBtn.replaceWith(closeBtn.cloneNode(true));
         
-        // Close button
-        modal.querySelector('.close-modal').addEventListener('click', () => {
-            modal.classList.add('hidden');
+        modal.querySelector('.close-modal').addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.closeModal();
         });
-        
-        // Click outside modal
+    
+        // Click outside listener
         modal.addEventListener('click', (e) => {
             if (e.target === modal) {
-                modal.classList.add('hidden');
+                this.closeModal();
             }
         });
+    }
+
+    closeModal() {
+        const modal = document.querySelector('.content-modal');
+        if (!modal) return;
+        modal.classList.remove('active');
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+        document.body.style.pointerEvents = 'auto';
     }
 
     showAddMultipleToPlaylistModal(songIndices) {
@@ -456,7 +497,7 @@ export class HomePage {
             if (!artists[track.artist]) {
                 artists[track.artist] = {
                     name: track.artist,
-                    image: track.cover || 'assets/default-artist.jpg',
+                    image: track.cover || 'assets/covers/default-artist.jpg',
                     songCount: 0
                 };
             }
@@ -480,6 +521,7 @@ export class HomePage {
             
             artistGrid.appendChild(artistItem);
         });
+    this.setupArtistAndAlbumClickHandlers();
     }
 
     renderAlbumGrid() {
@@ -491,7 +533,7 @@ export class HomePage {
                 albums[albumName] = {
                     name: albumName,
                     artist: track.artist,
-                    cover: track.cover || 'assets/default-cover.jpg',
+                    cover: track.cover || 'assets/covers/default-cover.jpg',
                     songCount: 0
                 };
             }
@@ -515,6 +557,7 @@ export class HomePage {
             
             albumGrid.appendChild(albumItem);
         });
+    this.setupArtistAndAlbumClickHandlers();
     }
 
     renderPlaylistGrid() {
@@ -564,21 +607,22 @@ export class HomePage {
         if (playerBar) {
             playerBar.classList.remove('hidden');
             playerBar.style.display = 'flex';
+
+         playerBar.querySelector('.mini-cover').src = track.cover || 'assets/default-cover.jpg';
+         playerBar.querySelector('.track-title').textContent = track.title;
+         playerBar.querySelector('.track-artist').textContent = track.artist;
         }
         this.updatePlayerInfo();
-        
-        // Then play the track
-        this.player.play(track).then(() => {
-            // Additional actions after play starts if needed
+        this.player.play(track).catch(error => {
+            console.error("Playback failed:", error);
         });
     }
 
     updatePlayerInfo() {
         const track = this.playlist.getCurrentTrack();
         if (this.player.updatePlayerUI) {
-            this.player.updatePlayerUI(track); // Use the player's UI update method
+            this.player.updatePlayerUI(track); 
         } else {
-            // Fallback to direct update
             const playerBar = document.querySelector('.player-controls-bar');
             if (playerBar && track) {
                 playerBar.querySelector('.mini-cover').src = track.cover || 'assets/default-cover.jpg';

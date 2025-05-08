@@ -118,9 +118,9 @@ tracks.forEach(track => playlist.addTrack(track));
 const ui = new PlayerUI(player, playlist);
 const homePage = new HomePage(player, playlist, playlistManagement);
 
-// Update the initPlayerState function
+
 function initPlayerState() {
-    const savedState = JSON.parse(localStorage.getItem('currentTrack')); // Fix key name
+    const savedState = JSON.parse(localStorage.getItem('currentTrack')); 
     if (savedState) {
         playlist.currentTrackIndex = savedState.index;
         player.audio.currentTime = savedState.currentTime || 0;
@@ -162,13 +162,12 @@ document.addEventListener('DOMContentLoaded', () => {
     menuToggle.addEventListener('click', () => {
         sidebar.classList.toggle('active');
     });
-    
-    // Close sidebar when overlay is clicked
+
     overlay.addEventListener('click', () => {
         sidebar.classList.remove('active');
     });
     
-    // Close sidebar when a nav link is clicked (for mobile)
+    // Close sidebar when a nav link is clicked for mobile
     document.querySelectorAll('.nav-menu a').forEach(link => {
         link.addEventListener('click', () => {
             if (window.innerWidth <= 1024) {
