@@ -1,40 +1,59 @@
 export class AudioPlayer {
-constructor() {
-    this.audio = new Audio();
-    this.isPlaying = false;
-    this.currentTrack = null;
-   this.updateProgressBar = this.updateProgressBar.bind(this);
-   this.handlePlayError = this.handlePlayError.bind(this);
+    constructor() {
+        this.audio = new Audio();
+        this.isPlaying = false;
+        this.currentTrack = null;
+        this.playlist = null;
+        this.updateProgressBar = this.updateProgressBar.bind(this);
+        this.handlePlayError = this.handlePlayError.bind(this);
 
-       // Setup event listeners
-       this.audio.addEventListener('timeupdate', this.updateProgressBar);
-       this.audio.addEventListener('error', this.handlePlayError);
-    this.audio.addEventListener('play', () => {
-        const playerBar = document.querySelector('.player-controls-bar');
-        if (playerBar) {
-            playerBar.classList.remove('hidden');
-            playerBar.style.display = 'flex';
-        }
-    });
-    
-    this.setupTimeUpdateListener();
-    this.setupOverlayPlayer();
-}
+        // Setup event listeners
+        this.audio.addEventListener('timeupdate', this.updateProgressBar);
+        this.audio.addEventListener('error', this.handlePlayError);
+        this.audio.addEventListener('play', () => {
+            const playerBar = document.querySelector('.player-controls-bar');
+            if (playerBar) {
+                playerBar.classList.remove('hidden');
+                playerBar.style.display = 'flex';
+            }
+        });
 
-
-updateProgressBar() {
-    if (!this.audio.duration) return;
-    
-    const progressPercent = (this.audio.currentTime / this.audio.duration) * 100;
-    const progressBar = document.querySelector('.progress-bar');
-    if (progressBar) {
-        progressBar.value = progressPercent;
+        this.setupTimeUpdateListener();
+        this.setupOverlayPlayer();
     }
-}
-handlePlayError(error) {
-    console.error('Playback error:', error);
-    this.isPlaying = false;
-}
+
+    setPlaylist(playlist) {
+        this.playlist = playlist;
+    }
+
+    formatTime(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+    }
+
+    updateProgressBar() {
+        if (!this.audio.duration) return;
+
+        const progressPercent = (this.audio.currentTime / this.audio.duration) * 100;
+        const progressBar = document.querySelector('.progress-bar');
+        if (progressBar) {
+            progressBar.value = progressPercent;
+        }
+        const currentTimeDisplay = document.querySelector('.current-time');
+        const durationDisplay = document.querySelector('.duration');
+        if (currentTimeDisplay) {
+            currentTimeDisplay.textContent = this.formatTime(this.audio.currentTime);
+        }
+        if (durationDisplay) {
+            durationDisplay.textContent = this.formatTime(this.audio.duration);
+        }
+    }
+
+    handlePlayError(error) {
+        console.error('Playback error:', error);
+        this.isPlaying = false;
+    }
 
     setupEventListeners() {
         this.audio.addEventListener('timeupdate', this.updateProgress.bind(this));
@@ -49,28 +68,30 @@ handlePlayError(error) {
             this.saveCurrentTime();
         });
     }
-    
+
     updateProgress() {
         if (!this.audio.duration) return;
-        
+
         const progressPercent = (this.audio.currentTime / this.audio.duration) * 100;
-        
+
         if (this.progressBar) {
             this.progressBar.value = progressPercent;
         }
-        
+
         if (this.currentTimeDisplay) {
             this.currentTimeDisplay.textContent = this.formatTime(this.audio.currentTime);
         }
-        
+
         this.updateWaveProgress(progressPercent);
     }
+
     updateWaveProgress(progress) {
         const waveProgress = document.querySelector('.wave-progress');
         if (waveProgress) {
             waveProgress.style.transform = `translateX(-${100 - progress}%) translateY(50%)`;
         }
     }
+
     setupOverlayPlayer() {
         const playerBar = document.querySelector('.player-controls-bar');
         const overlay = document.querySelector('.player-overlay');
@@ -78,14 +99,14 @@ handlePlayError(error) {
         const overlayTrackTitle = document.querySelector('.overlay-track-title');
         const overlayTrackArtist = document.querySelector('.overlay-track-artist');
         const albumArtContainer = document.querySelector('.album-art-container');
-        
+
         // Update overlay when track changes
         const updateOverlayInfo = () => {
             if (this.currentTrack) {
                 overlayAlbumArt.src = this.currentTrack.cover || 'assets/default-cover.jpg';
                 overlayTrackTitle.textContent = this.currentTrack.title;
                 overlayTrackArtist.textContent = this.currentTrack.artist;
-                
+
                 if (this.isPlaying) {
                     albumArtContainer.classList.add('playing');
                 } else {
@@ -93,7 +114,24 @@ handlePlayError(error) {
                 }
             }
         };
-    
+
+        // Update control buttons to show active states
+        const updateControlStates = () => {
+            const shuffleBtn = document.querySelector('.shuffle-btn');
+            const repeatBtn = document.querySelector('.repeat-btn');
+
+            if (shuffleBtn) {
+                shuffleBtn.classList.toggle('active', this.playlist?.shuffle || false);
+            }
+            if (repeatBtn) {
+                repeatBtn.classList.toggle('active', this.playlist?.repeat || false);
+            }
+        };
+
+        // Call initially and whenever playlist changes
+        updateControlStates();
+        this.audio.addEventListener('play', updateControlStates);
+
         // Toggle overlay when player bar is clicked
         playerBar.addEventListener('click', (e) => {
             if (e.target.closest('.player-info, .mini-cover')) {
@@ -101,41 +139,42 @@ handlePlayError(error) {
                 overlay.classList.add('active');
             }
         });
-        
+
         // Close overlay when clicked outside content
         overlay.addEventListener('click', (e) => {
             if (e.target === overlay) {
                 overlay.classList.remove('active');
             }
         });
-        
+
         // Update overlay when track changes
         this.audio.addEventListener('play', updateOverlayInfo);
-        
+
         // Sync play/pause with overlay
         this.audio.addEventListener('play', () => {
             document.querySelector('.overlay-control-btn.play-btn').innerHTML = '<i class="fas fa-pause"></i>';
             albumArtContainer.classList.add('playing');
         });
-        
+
         this.audio.addEventListener('pause', () => {
             document.querySelector('.overlay-control-btn.play-btn').innerHTML = '<i class="fas fa-play"></i>';
             albumArtContainer.classList.remove('playing');
         });
-        
+
         // Connect overlay controls
         document.querySelector('.overlay-control-btn.play-btn').addEventListener('click', () => this.togglePlay());
         document.querySelector('.overlay-control-btn.prev-btn').addEventListener('click', () => this.playPrevious());
         document.querySelector('.overlay-control-btn.next-btn').addEventListener('click', () => this.playNext());
         document.querySelector('.overlay-control-btn.shuffle-btn').addEventListener('click', () => this.toggleShuffle());
         document.querySelector('.overlay-control-btn.repeat-btn').addEventListener('click', () => this.toggleRepeat());
-        
+
         // Update wave progress
         this.audio.addEventListener('timeupdate', () => {
             const progress = (this.audio.currentTime / this.audio.duration) * 100;
             document.querySelector('.wave-progress').style.transform = `translateX(-${100 - progress}%) translateY(50%)`;
         });
     }
+
     onPlay() {
         this.isPlaying = true;
         document.querySelector('.play-btn').innerHTML = '<i class="fas fa-pause"></i>';
@@ -169,27 +208,27 @@ handlePlayError(error) {
             this.audio.src = savedState.src;
             this.audio.currentTime = savedState.currentTime || 0;
             this.audio.volume = savedState.volume || 0.7;
-            
+
             if (savedState.isPlaying) {
                 this.audio.play().catch(e => console.log("Autoplay prevented:", e));
             }
-            
+
             document.querySelector('.player-controls-bar').classList.remove('hidden');
             document.querySelector('.play-btn').innerHTML = 
                 savedState.isPlaying ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
         }
     }
 
-
     saveCurrentTime() {
         localStorage.setItem('currentTime', this.audio.currentTime);
     }
+
     play(track) {
         this.currentTrack = track;
         this.audio.src = track.url;
-        
+
         this.updatePlayerUI(track);
-        
+
         return this.audio.play()
             .then(() => {
                 this.isPlaying = true;
@@ -202,19 +241,91 @@ handlePlayError(error) {
                 return false;
             });
     }
+
     updatePlayerUI(track) {
         const playerBar = document.querySelector('.player-controls-bar');
         if (playerBar && track) {
             const cover = playerBar.querySelector('.mini-cover');
             const title = playerBar.querySelector('.track-title');
             const artist = playerBar.querySelector('.track-artist');
-            
+
             if (cover) cover.src = track.cover || 'assets/default-cover.jpg';
             if (title) title.textContent = track.title;
             if (artist) artist.textContent = track.artist;
         }
     }
 
+    playNext() {
+        if (!this.playlist) {
+            console.error('No playlist available');
+            return;
+        }
+
+        const nextTrack = this.playlist.nextTrack();
+        if (nextTrack) {
+            this.play(nextTrack);
+        } else {
+            // End of playlist behavior
+            this.pause();
+            this.audio.currentTime = 0;
+            if (this.playlist.repeat) {
+                this.playlist.currentTrackIndex = -1; // Reset for repeat
+                this.playNext(); // Will wrap to first track
+            }
+        }
+    }
+
+    playPrevious() {
+        if (!this.playlist) {
+            console.error('No playlist available');
+            return;
+        }
+
+        // Restart current track if >3 seconds played
+        if (this.audio.currentTime > 3) {
+            this.audio.currentTime = 0;
+            if (this.currentTrack) {
+                this.updatePlayerUI(this.currentTrack);
+            }
+            return;
+        }
+
+        const prevTrack = this.playlist.previousTrack();
+        if (prevTrack) {
+            this.play(prevTrack);
+        }
+    }
+
+    toggleShuffle() {
+        if (!this.playlist) return;
+
+        this.playlist.shuffle = !this.playlist.shuffle;
+
+        // Update UI
+        const shuffleBtn = document.querySelector('.shuffle-btn');
+        if (shuffleBtn) {
+            shuffleBtn.classList.toggle('active', this.playlist.shuffle);
+        }
+
+        // Handle shuffle logic
+        if (this.playlist.shuffle) {
+            this.playlist.shuffleTracks();
+        } else {
+            this.playlist.resetShuffle();
+        }
+    }
+
+    toggleRepeat() {
+        if (!this.playlist) return;
+
+        this.playlist.repeat = !this.playlist.repeat;
+
+        // Update UI
+        const repeatBtn = document.querySelector('.repeat-btn');
+        if (repeatBtn) {
+            repeatBtn.classList.toggle('active', this.playlist.repeat);
+        }
+    }
 
     pause() {
         this.audio.pause();
@@ -237,5 +348,4 @@ handlePlayError(error) {
     seek(time) {
         this.audio.currentTime = time;
     }
-   
 }

@@ -452,3 +452,7 @@ body {
     color: var(--primary-color);
 }
 
+.shuffle-btn.active i::before,
+.repeat-btn.active i::before {
+    font-weight: 900; /* Makes the icon bold when active */
+}
