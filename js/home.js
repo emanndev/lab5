@@ -22,28 +22,59 @@ export class HomePage {
 
     setupTabSwitching() {
         const tabButtons = document.querySelectorAll('.tab-button');
+        const navLinks = document.querySelectorAll('.nav-menu a');
+
+        const switchTab = (tab) => {
+            // Update tab buttons
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            const activeTabButton = document.querySelector(`.tab-button[data-tab="${tab}"]`);
+            if (activeTabButton) {
+                activeTabButton.classList.add('active');
+            }
+
+            // Update nav links
+            navLinks.forEach(link => link.parentElement.classList.remove('active'));
+            const activeNavLink = document.querySelector(`.nav-menu a[data-tab="${tab}"]`);
+            if (activeNavLink) {
+                activeNavLink.parentElement.classList.add('active');
+            }
+
+            // Show/hide content sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            this.currentTab = tab;
+            document.getElementById(`${this.currentTab}-tab`).classList.remove('hidden');
+
+            // Render content based on tab
+            switch(this.currentTab) {
+                case 'songs':
+                    this.renderSongList();
+                    break;
+                case 'artists':
+                    this.renderArtistGrid();
+                    break;
+                case 'albums':
+                    this.renderAlbumGrid();
+                    break;
+                case 'playlists':
+                    this.renderPlaylistGrid();
+                    break;
+            }
+        };
+
         tabButtons.forEach(button => {
             button.addEventListener('click', () => { 
-                tabButtons.forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
-                document.querySelectorAll('.content-section').forEach(section => {
-                    section.classList.add('hidden');
-                });
-                this.currentTab = button.dataset.tab;
-                document.getElementById(`${this.currentTab}-tab`).classList.remove('hidden');
-                switch(this.currentTab) {
-                    case 'songs':
-                        this.renderSongList();
-                        break;
-                    case 'artists':
-                        this.renderArtistGrid();
-                        break;
-                    case 'albums':
-                        this.renderAlbumGrid();
-                        break;
-                    case 'playlists':
-                        this.renderPlaylistGrid();
-                        break;
+                switchTab(button.dataset.tab);
+            });
+        });
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const tab = link.dataset.tab;
+                if (tab && tab !== 'home') {
+                    switchTab(tab);
                 }
             });
         });
@@ -467,6 +498,9 @@ export class HomePage {
             if (playerBar) {
                 playerBar.classList.remove('hidden');
                 playerBar.style.display = 'flex';
+                // Ensure play/pause button reflects current state
+                const playBtn = playerBar.querySelector('.play-btn');
+                playBtn.innerHTML = this.player.isPlaying ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
             }
         }
     }

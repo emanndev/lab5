@@ -9,7 +9,6 @@ const player = new AudioPlayer();
 const playlist = new Playlist();
 const playlistManagement = new PlaylistManagement(playlist);
 
-
 // Shared state in localStorage
 if (!localStorage.getItem('currentTrack')) {
     localStorage.setItem('currentTrack', JSON.stringify({
@@ -112,12 +111,9 @@ const tracks = [
 ];
 tracks.forEach(track => playlist.addTrack(track));
 
-
-
 // Initialize UI components
 const ui = new PlayerUI(player, playlist);
 const homePage = new HomePage(player, playlist, playlistManagement);
-
 
 function initPlayerState() {
     const savedState = JSON.parse(localStorage.getItem('currentTrack')); 
@@ -137,8 +133,17 @@ function initPlayerState() {
                 });
         }
     }
+    // Hide preloader after initialization
+    const preloader = document.getElementById('preloader');
+    if (preloader) {
+        setTimeout(() => {
+            preloader.style.opacity = '0';
+            setTimeout(() => {
+                preloader.style.display = 'none';
+            }, 500);
+        }, 2000); // Adjust delay as needed
+    }
 }
-
 
 initPlayerState();
 
@@ -151,8 +156,7 @@ window.addEventListener('beforeunload', () => {
     }));
 });
 
-
-// Mobile Navigation Toggle
+// Mobile Navigation and Sidebar Tab Switching
 document.addEventListener('DOMContentLoaded', () => {
     const sidebar = document.querySelector('.sidebar');
     const menuToggle = document.querySelector('.menu-toggle');
@@ -167,7 +171,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.querySelectorAll('.nav-menu a').forEach(link => {
-        link.addEventListener('click', () => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const tab = link.dataset.tab;
+            if (tab && tab !== 'home') {
+                // Trigger tab switch
+                const tabButton = document.querySelector(`.tab-button[data-tab="${tab}"]`);
+                if (tabButton) {
+                    tabButton.click();
+                }
+            }
             if (window.innerWidth <= 1024) {
                 sidebar.classList.remove('active');
             }

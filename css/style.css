@@ -23,6 +23,26 @@ body {
     overflow-x: hidden;
 }
 
+/* Preloader Styles */
+#preloader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--light-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    transition: opacity 1s ease;
+}
+
+#preloader.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
 .app-container {
     display: flex;
     min-height: 100vh;
@@ -72,6 +92,11 @@ body {
     text-decoration: none;
     display: flex;
     align-items: center;
+}
+
+.nav-menu li a.active {
+    color: var(--accent-color);
+    font-weight: bold;
 }
 
 .nav-menu li i {
@@ -159,7 +184,6 @@ body {
     display: none;
 }
 
-
 /* Song List Styles */
 .song-list {
     display: grid;
@@ -230,7 +254,6 @@ body {
     gap: 10px;
 }
 
-
 .song-actions button {
     background: none;
     border: none;
@@ -278,10 +301,6 @@ body {
     object-fit: cover;
 }
 
-
-
-
-
 /* Grid Styles for Artists/Albums/Playlists */
 .artist-grid, .album-grid, .playlist-grid {
     display: grid;
@@ -324,10 +343,6 @@ body {
     font-size: 0.9rem;
     color: var(--text-light);
 }
-
-
-
-
 
 /* Player Controls Bar */
 .player-controls-bar {    
@@ -378,7 +393,6 @@ body {
     font-size: 0.8rem;
     color: var(--text-light);
 }
-
 
 .player-center-controls {
     display: flex;
