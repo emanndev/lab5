@@ -24,7 +24,7 @@ body {
 }
 
 /* Preloader Styles */
-#preloader {
+/* #preloader {
     position: fixed;
     top: 0;
     left: 0;
@@ -41,7 +41,7 @@ body {
 #preloader.hidden {
     opacity: 0;
     pointer-events: none;
-}
+} */
 
 .app-container {
     display: flex;
