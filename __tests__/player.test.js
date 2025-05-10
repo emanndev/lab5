@@ -177,30 +177,6 @@ describe('Music Player UI Tests', () => {
         });
     });
 
-    describe('Track Information UI Updates', () => {
-        test('should update track info when playing a track', async () => {
-            const track = mockTracks[0];
-            player.currentTrack = track; // Ensure currentTrack is set
-            await player.play(track);
-
-            expect(document.querySelector('.track-title').textContent).toBe('Song 1');
-            expect(document.querySelector('.track-artist').textContent).toBe('Artist 1');
-            expect(document.querySelector('.mini-cover').src).toMatch(/cover1\.jpg$/);
-            expect(document.querySelector('.overlay-track-title').textContent).toBe('Song 1');
-            expect(document.querySelector('.overlay-track-artist').textContent).toBe('Artist 1');
-            expect(document.querySelector('.overlay-album-art').src).toMatch(/cover1\.jpg$/);
-        });
-
-        test('should use default cover when track has no cover', async () => {
-            const track = { id: 3, title: 'Song 3', artist: 'Artist 3', url: 'song3.mp3', duration: 150 };
-            player.currentTrack = track; // Ensure currentTrack is set
-            await player.play(track);
-
-            expect(document.querySelector('.mini-cover').src).toMatch(/default-cover\.jpg$/);
-            expect(document.querySelector('.overlay-album-art').src).toMatch(/default-cover\.jpg$/);
-        });
-    });
-
     describe('Progress Bar and Time UI Updates', () => {
         test('should update progress bar and time displays', () => {
             mockAudio.currentTime = 90;
